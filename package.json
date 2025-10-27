@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.842.0",
     "@aws-sdk/lib-storage": "^3.842.0",
+    "@clerk/express": "^1.7.42",
     "@langchain/langgraph": "^0.3.8",
     "@langchain/openai": "^0.5.18",
     "@prisma/client": "^6.9.0",
