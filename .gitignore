@@ -1,0 +1,6 @@
+
+node_modules/
+.env
+.env.*  # if you're using .env.local, .env.development, etc.
+
+/src/generated/prisma
