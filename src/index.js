@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import protectedRoutes from "./routes/protected.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
+import jobRoutes from "./routes/job.routes.js";
 import { errorHandler } from "./utils/error.js";
 import cookieParser from "cookie-parser";
 import { clerkMiddleware } from "@clerk/express";
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/job", jobRoutes);
 
 app.use(errorHandler);
 
