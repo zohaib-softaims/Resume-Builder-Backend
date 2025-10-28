@@ -6,12 +6,22 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function getLLMResponse({ systemPrompt, messages, model = "gpt-4o" }) {
+export async function getLLMResponse({ systemPrompt, messages, model = "gpt-4o-2024-08-06", responseSchema, schemaName }) {
   try {
-    const response = await openai.chat.completions.create({
+    const requestConfig = {
       model,
       messages: [{ role: "system", content: systemPrompt }, ...messages],
-    });
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: schemaName,
+          strict: true,
+          schema: responseSchema,
+        },
+      },
+    };
+
+    const response = await openai.chat.completions.create(requestConfig);
 
     console.log("Prompt tokens:", response.usage.prompt_tokens);
     console.log("Completion tokens:", response.usage.completion_tokens);

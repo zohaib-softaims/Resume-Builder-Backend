@@ -1,7 +1,7 @@
 import { catchAsync } from "../utils/error.js";
 import pdfParse from "pdf-parse";
 import { sanitizedText } from "../utils/sanitizedText.js";
-import { resumeAnalysisPrompt } from "../llmPrompts/resumeAnalysisPrompt.js";
+import { resumeAnalysisPrompt, resumeAnalysisSchema } from "../llmPrompts/resumeAnalysisPrompt.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
 import { s3Uploader } from "../utils/s3Uploader.js";
 import { createResume } from "../services/resume.service.js";
@@ -17,9 +17,13 @@ export const parseResume = catchAsync(async (req, res) => {
   let analysis = await getLLMResponse({
     systemPrompt,
     messages: [],
+    responseSchema: resumeAnalysisSchema,
+    schemaName: "resume_analysis",
   });
-  const parsedAnalysis = JSON.parse(analysis);
 
+  // The response is guaranteed to be valid JSON matching the schema
+  const parsedAnalysis = JSON.parse(analysis);
+  console.log("analysis", parsedAnalysis);
   const uploadResult = await s3Uploader(req.file);
   const uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
   req.auth.userId = "user_34eCDFynCiZvDHkz419GIdhY0Ky";

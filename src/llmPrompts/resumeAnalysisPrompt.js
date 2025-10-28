@@ -18,49 +18,101 @@ ${resumeText}
 4. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
 5. Resume Strength Tips:
     Positive - One positive key insight or the strongest aspect of this resume (e.g., strong quantified achievements).
-    Negative - One negative key insight or the most critical weakness that should be improved(e.g., missing certifications, missing quantified achievements, missing an importanrt section).
+    Negative - One negative key insight or the most critical weakness that should be improved (e.g., missing certifications, missing quantified achievements, missing an important section).
 6. Resume Analysis:
     - Strengths: List of 3-5 things the resume does well. For each strength, clearly refer to the part of the CV that demonstrates this strength (quote or summarize the relevant sentence or section from the CV).
-    - Weaknesses: List of 3-5 areas for improvement in the cv. For each weakness, explain why it needs improvement and also point to a relevant example or reference from the CV (quote or summarize the section that demonstrates this weakness).
+    - Weaknesses: List of 3-5 areas for improvement in the CV. For each weakness, explain why it needs improvement and also point to a relevant example or reference from the CV (quote or summarize the section that demonstrates this weakness).
 7. Keyword Analysis:
     - List of missing or recommended keywords based on the target job or industry.
     - Provide advice on how to improve keyword optimization. For the advice, refer or quote a relevant part of the CV that could be improved by adding or optimizing keywords.
-
-Output the results in this JSON format:
-
-
-{
-  "overall_resume_score": "45%",
-  "ats_compatibility": 82,
-  "keyword_optimization": 45,
-  "achievement_focus": 70,
-  "resume_strength_tips": {
-     "positive": {
-      "heading": "",
-      "description": ""
-    }, 
-    "negative": {
-      "heading": "",
-      "description": ""
-    } 
-  },
-  "resume_analysis": {
-    "strengths": [
-      "Quantified impact with metrics like 'increased revenue by 27%'",
-      "Relevant industry experience"
-    ],
-    "weaknesses": [
-      "No mention of certifications",
-    ]
-  },
-  "keyword_analysis": {
-    "missing_keywords": ["", "", "", "",...], //Only include technical and domain-specific keywords such as tools, frameworks, and job-related hard skills.
-    "suggestions": "Consider integrating missing keywords into relevant experience or skills sections."
-  }
-}
-
- ### Important:
-    Do not add anything outside the JSON block. Always follow this format strictly.
-    Do NOT wrap any of your JSON responses in triple backticks (\`\`\`), do NOT use \`\`\`json, and do NOT include any markdown syntax. 
 `;
+};
+
+export const resumeAnalysisSchema = {
+  type: "object",
+  properties: {
+    overall_resume_score: {
+      type: "string",
+      pattern: "^\\d+%$",
+    },
+    ats_compatibility: {
+      type: "number",
+      minimum: 0,
+      maximum: 100,
+    },
+    keyword_optimization: {
+      type: "number",
+      minimum: 0,
+      maximum: 100,
+    },
+    achievement_focus: {
+      type: "number",
+      minimum: 0,
+      maximum: 100,
+    },
+    resume_strength_tips: {
+      type: "object",
+      properties: {
+        positive: {
+          type: "object",
+          properties: {
+            heading: { type: "string" },
+            description: { type: "string" },
+          },
+          required: ["heading", "description"],
+          additionalProperties: false,
+        },
+        negative: {
+          type: "object",
+          properties: {
+            heading: { type: "string" },
+            description: { type: "string" },
+          },
+          required: ["heading", "description"],
+          additionalProperties: false,
+        },
+      },
+      required: ["positive", "negative"],
+      additionalProperties: false,
+    },
+    resume_analysis: {
+      type: "object",
+      properties: {
+        strengths: {
+          type: "array",
+          items: { type: "string" },
+          minItems: 1,
+        },
+        weaknesses: {
+          type: "array",
+          items: { type: "string" },
+          minItems: 1,
+        },
+      },
+      required: ["strengths", "weaknesses"],
+      additionalProperties: false,
+    },
+    keyword_analysis: {
+      type: "object",
+      properties: {
+        missing_keywords: {
+          type: "array",
+          items: { type: "string" },
+        },
+        suggestions: { type: "string" },
+      },
+      required: ["missing_keywords", "suggestions"],
+      additionalProperties: false,
+    },
+  },
+  required: [
+    "overall_resume_score",
+    "ats_compatibility",
+    "keyword_optimization",
+    "achievement_focus",
+    "resume_strength_tips",
+    "resume_analysis",
+    "keyword_analysis",
+  ],
+  additionalProperties: false,
 };
