@@ -11,15 +11,19 @@ export async function getLLMResponse({ systemPrompt, messages, model = "gpt-4o-2
     const requestConfig = {
       model,
       messages: [{ role: "system", content: systemPrompt }, ...messages],
-      response_format: {
+    };
+
+    // Only add response_format if schema is provided
+    if (responseSchema && schemaName) {
+      requestConfig.response_format = {
         type: "json_schema",
         json_schema: {
           name: schemaName,
           strict: true,
           schema: responseSchema,
         },
-      },
-    };
+      };
+    }
 
     const response = await openai.chat.completions.create(requestConfig);
 
