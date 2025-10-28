@@ -11,14 +11,29 @@ datasource db {
 }
 
 model User {
-  id        String   @id
-  email     String   @unique
+  id        String    @id
+  email     String    @unique
   name      String?
   imageUrl  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  resumes   Resume[]
 
   @@map("users")
+}
+
+model Resume {
+  id                  String   @id @default(cuid())
+  userId              String
+  resumeText          String
+  resumeFileUrl       String?
+  resumeAnalysis      String?
+  optimizedResumeUrl  String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resumes")
 }
 
 
