@@ -1,8 +1,8 @@
 import { createUser, updateUser, deleteUser } from "../services/auth.service.js";
+import { catchAsync } from "../utils/error.js";
 
-export const clerkWebhook = async (req, res, next) => {
+export const clerkWebhook = catchAsync(async (req, res, next) => {
   const { type, data } = req.body;
-  console.log("body", req.body);
   switch (type) {
     case "user.created":
       await createUser(data);
@@ -24,4 +24,4 @@ export const clerkWebhook = async (req, res, next) => {
   }
 
   return res.status(200).json({ success: true, message: "Webhook processed" });
-};
+});
