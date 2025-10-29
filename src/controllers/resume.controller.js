@@ -23,15 +23,17 @@ export const parseResume = catchAsync(async (req, res) => {
 
   // The response is guaranteed to be valid JSON matching the schema
   const parsedAnalysis = JSON.parse(analysis);
-  console.log("analysis", parsedAnalysis);
   const uploadResult = await s3Uploader(req.file);
   const uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
   req.auth.userId = "user_34eCDFynCiZvDHkz419GIdhY0Ky";
-  await createResume(req.auth.userId, resumeText, uploadedResumeUrl, analysis);
-
+  const response = await createResume(req.auth.userId, resumeText, uploadedResumeUrl, analysis);
+  console.log("response");
   res.status(200).json({
     success: true,
     message: "Resume analyzed successfully",
-    data: parsedAnalysis,
+    data: {
+      resume_id: response.id,
+      resume_analysis: parsedAnalysis,
+    },
   });
 });
