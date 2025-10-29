@@ -16,15 +16,32 @@ ${resumeText}
 2. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
 3. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
 4. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
-5. Resume Strength Tips:
-    Positive - One positive key insight or the strongest aspect of this resume (e.g., strong quantified achievements).
-    Negative - One negative key insight or the most critical weakness that should be improved (e.g., missing certifications, missing quantified achievements, missing an important section).
-6. Resume Analysis:
-    - Strengths: List of 3-5 things the resume does well. For each strength, clearly refer to the part of the CV that demonstrates this strength (quote or summarize the relevant sentence or section from the CV).
-    - Weaknesses: List of 3-5 areas for improvement in the CV. For each weakness, explain why it needs improvement and also point to a relevant example or reference from the CV (quote or summarize the section that demonstrates this weakness).
-7. Keyword Analysis:
-    - List of missing or recommended keywords based on the target job or industry.
-    - Provide advice on how to improve keyword optimization. For the advice, refer or quote a relevant part of the CV that could be improved by adding or optimizing keywords.
+5. **Resume Analysis:**
+   - **Strengths:**  
+     Identify 3–5 key strengths that make this resume stand out.  
+     Focus on elements that genuinely enhance credibility, clarity, or hiring appeal.  
+     Each strength must be supported by direct evidence or references from the resume text — quote or summarize specific sections that demonstrate these qualities.  
+     Avoid vague or surface-level comments like “good formatting” or “well-structured.” Instead, explain *why* each identified strength adds value and *how* it benefits the candidate’s positioning.
+
+   - **Weaknesses:**  
+     Identify 3–5 substantial weaknesses that limit the resume’s effectiveness or clarity.  
+     The model should independently determine all relevant weaknesses.  
+     Avoid mentioning issues like “too detailed,” “too concise,” or “cluttered formatting.”  
+     For each weakness:
+       - Explain clearly *why* it weakens the resume.  
+       - Reference or quote the exact part of the resume that demonstrates it.  
+       - Suggest a constructive, content-level improvement.  
+     The critique should sound like that of a professional resume consultant giving practical, actionable feedback not a mechanical checklist.
+
+6. **Keyword Analysis:**  
+   Perform an in-depth, intelligent keyword assessment based on the resume’s domain and context.  
+   You should infer the candidate’s likely target roles or industries by analyzing the content, titles, and skills mentioned in the resume.  
+   Then, using your understanding of real-world job market expectations (as reflected in top job boards like LinkedIn or Indeed), identify:
+   - Which critical industry or role-specific keywords are missing or underrepresented.  
+   - Which skills, tools, certifications, or domain terms would significantly increase the resume’s visibility in ATS and recruiter searches.  
+   - Don’t output arbitrary keyword lists — only relevant, contextually justified keywords that make the resume more competitive in real job searches.  
+  
+
 `;
 };
 
@@ -80,14 +97,6 @@ export const resumeAnalysisSchema = {
       additionalProperties: false,
     },
   },
-  required: [
-    "overall_resume_score",
-    "ats_compatibility",
-    "keyword_optimization",
-    "achievement_focus",
-    "resume_strength_tips",
-    "resume_analysis",
-    "keyword_analysis",
-  ],
+  required: ["overall_resume_score", "ats_compatibility", "keyword_optimization", "achievement_focus", "resume_analysis", "keyword_analysis"],
   additionalProperties: false,
 };
