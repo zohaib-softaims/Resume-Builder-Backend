@@ -25,7 +25,7 @@ export const parseResume = catchAsync(async (req, res) => {
   const parsedAnalysis = JSON.parse(analysis);
   const uploadResult = await s3Uploader(req.file);
   const uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
-  req.auth.userId = "user_34eCDFynCiZvDHkz419GIdhY0Ky";
+  req.auth.userId = "user_34jYMUY6A4AWtscZ510Uxdd2QLs";
   const response = await createResume(req.auth.userId, resumeText, uploadedResumeUrl, analysis);
   console.log("response");
   res.status(200).json({

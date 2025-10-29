@@ -50,31 +50,6 @@ export const resumeAnalysisSchema = {
       minimum: 0,
       maximum: 100,
     },
-    resume_strength_tips: {
-      type: "object",
-      properties: {
-        positive: {
-          type: "object",
-          properties: {
-            heading: { type: "string" },
-            description: { type: "string" },
-          },
-          required: ["heading", "description"],
-          additionalProperties: false,
-        },
-        negative: {
-          type: "object",
-          properties: {
-            heading: { type: "string" },
-            description: { type: "string" },
-          },
-          required: ["heading", "description"],
-          additionalProperties: false,
-        },
-      },
-      required: ["positive", "negative"],
-      additionalProperties: false,
-    },
     resume_analysis: {
       type: "object",
       properties: {
