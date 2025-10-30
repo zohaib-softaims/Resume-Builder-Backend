@@ -28,11 +28,10 @@ Write an optimized professional summary section that:
 **Instructions**:
 - Review the entire resume analysis above to understand the strengths, weaknesses, and recommendations
 - If no summary exists in the resume, create one from scratch based on the experience and skills
-- If a summary exists, refine it significantly while keeping ALL original information intact and adding improvements
+- If a summary exists, refine it significantly while keeping ALL original information intact and adding improvements but keep the summary concise.
 - Use information from the resume analysis to guide your optimization
 - Pay special attention to any areas for improvement mentioned in the analysis
 - Leverage strengths identified in the analysis
-- Use your judgment to write naturally without enforced formatting constraints
 
 `;
 };

@@ -49,19 +49,29 @@ export const personalInfoSchema = {
 
 export const formatSummaryPrompt = (optimizedSummary) => {
   return `
-You are a resume formatter. Return the following optimized professional summary as-is.
+You are a resume formatter. Return the following optimized professional summary.
 
 **Optimized Summary**:
 ${optimizedSummary}
 
-**Task**: Return the summary exactly as provided, without any modifications.
+**Task**: Produce a clean professional summary string only. Remove any headings or labels and jsut return the summary.
 
 **Instructions**:
-- Do not change, shorten, or reformat the content
-- Return it exactly as provided in the optimized summary above
 
-Return ONLY the summary text, no JSON wrapper, no additional comments.
+Return ONLY JSON with this exact structure:
+{
+  "summary": "<clean summary string>"
+}
 `;
+};
+
+export const summarySchema = {
+  type: "object",
+  properties: {
+    summary: { type: "string" },
+  },
+  required: ["summary"],
+  additionalProperties: false,
 };
 
 export const formatSkillsPrompt = (optimizedSkills) => {

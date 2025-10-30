@@ -15,6 +15,7 @@ import {
   formatPersonalInfoPrompt,
   personalInfoSchema,
   formatSummaryPrompt,
+  summarySchema,
   formatSkillsPrompt,
   skillsSchema,
   formatExperiencePrompt,
@@ -101,7 +102,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
 
   console.log("Formatting each section into structured JSON...", optimizedProjects);
 
-  const [personalInfoJson, summaryText, skillsJson, experienceJson, projectsJson, educationJson] = await Promise.all([
+  const [personalInfoJson, summaryJson, skillsJson, experienceJson, projectsJson, educationJson] = await Promise.all([
     getLLMResponse({
       systemPrompt: formatPersonalInfoPrompt(resume_text),
       messages: [],
@@ -112,7 +113,9 @@ export const optimizeResume = catchAsync(async (req, res) => {
     getLLMResponse({
       systemPrompt: formatSummaryPrompt(optimizedSummary),
       messages: [],
+      responseSchema: summarySchema,
       model: "gpt-4o-2024-08-06",
+      schemaName: "summary",
     }),
     getLLMResponse({
       systemPrompt: formatSkillsPrompt(optimizedSkills),
@@ -146,6 +149,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
 
   // Parse all JSON responses and unwrap arrays from wrapper objects
   const personalInfo = JSON.parse(personalInfoJson);
+  const summaryWrapper = JSON.parse(summaryJson);
   const skillsWrapper = JSON.parse(skillsJson);
   const experienceWrapper = JSON.parse(experienceJson);
   const projectsWrapper = JSON.parse(projectsJson);
@@ -158,7 +162,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
     phone: personalInfo.phone || "",
     linkedin: personalInfo.linkedin || "",
     location: personalInfo.location || "",
-    summary: (summaryText || "").trim(),
+    summary: (summaryWrapper.summary || "").trim(),
     skills: skillsWrapper.skills || [],
     experience: experienceWrapper.experience || [],
     education: educationWrapper.education || [],
