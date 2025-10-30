@@ -261,6 +261,134 @@ export const projectsSchema = {
   additionalProperties: false,
 };
 
+export const formatAchievementsAwardsPrompt = (optimizedText) => {
+  return `
+You are a resume formatter. The following contains optimized Achievements and/or Awards text. Parse and structure what exists.
+
+**Optimized Text**:
+${optimizedText}
+
+**Task**: Extract achievements (if present) and awards (if present).
+
+**Instructions**:
+- If achievements are present, extract a single group with heading and description_points
+- If awards are present, extract each award with title, issuer, year, and description_points
+- Return as structured JSON
+
+**Required JSON Format**:
+{
+  "achievements": [
+    { "heading": "Achievements", "description_points": ["Point 1", "Point 2"] }
+  ],
+  "awards": [
+    { "title": "Award Title", "issuer": "Organization", "year": "2023", "description_points": ["Point 1", "Point 2"] }
+  ]
+}
+
+Return ONLY the JSON object, no additional text or markdown.
+`;
+};
+
+export const achievementsAwardsSchema = {
+  type: "object",
+  properties: {
+    achievements: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          heading: { type: "string" },
+          description_points: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: ["heading", "description_points"],
+        additionalProperties: false,
+      },
+    },
+    awards: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          issuer: { type: "string" },
+          year: { type: "string" },
+          description_points: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: ["title", "issuer", "year", "description_points"],
+        additionalProperties: false,
+      },
+    },
+  },
+  // For strict schemas, required must include all properties; we allow empty arrays to represent "not available".
+  required: ["achievements", "awards"],
+  additionalProperties: false,
+};
+
+export const formatCertificationsPrompt = (optimizedCertifications) => {
+  return `
+You are a resume formatter. The following is an optimized certifications section. Parse and structure it.
+
+**Optimized Certifications**:
+${optimizedCertifications}
+
+**Task**: Extract each certification with name, issuer, year, and description_points.
+
+**Instructions**:
+- Parse each certification entry
+- Extract certification name, issuer, and year
+- Extract ALL bullet points as description_points
+- Return as structured JSON
+
+**Required JSON Format**:
+{
+  "certifications": [
+    {
+      "name": "Certification Name",
+      "issuer": "Issuing Org",
+      "year": "2022",
+      "description_points": [
+        "Point 1",
+        "Point 2"
+      ]
+    }
+  ]
+}
+
+Return ONLY the JSON object, no additional text or markdown.
+`;
+};
+
+export const certificationsSchema = {
+  type: "object",
+  properties: {
+    certifications: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          issuer: { type: "string" },
+          year: { type: "string" },
+          description_points: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: ["name", "issuer", "year", "description_points"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["certifications"],
+  additionalProperties: false,
+};
+
 export const formatEducationPrompt = (originalResumeText) => {
   return `
 You are a resume data extraction expert. Extract education information from the resume text below.

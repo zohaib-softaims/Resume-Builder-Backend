@@ -10,6 +10,8 @@ import {
   getOptimizedSkillsPrompt,
   getOptimizedProjectsPrompt,
   getOptimizedExperiencePrompt,
+  getOptimizedAchievementsAwardsPrompt,
+  getOptimizedCertificationsPrompt,
 } from "../llmPrompts/resumeOptimizationPrompts.js";
 import {
   formatPersonalInfoPrompt,
@@ -24,6 +26,10 @@ import {
   projectsSchema,
   formatEducationPrompt,
   educationSchema,
+  formatAchievementsAwardsPrompt,
+  achievementsAwardsSchema,
+  formatCertificationsPrompt,
+  certificationsSchema,
 } from "../llmPrompts/resumeSectionFormatters.js";
 import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { generateResumePDF } from "../utils/pdfGenerator.js";
@@ -77,7 +83,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const parsedAnalysis = JSON.parse(resume_analysis);
 
   // Call multiple prompts in parallel for optimization
-  const [optimizedSummary, optimizedSkills, optimizedProjects, optimizedExperience] = await Promise.all([
+  const [optimizedSummary, optimizedSkills, optimizedProjects, optimizedExperience, optimizedAchievementsAwards, optimizedCertifications] = await Promise.all([
     getLLMResponse({
       systemPrompt: getOptimizedSummaryPrompt(resume_text, parsedAnalysis),
       messages: [],
@@ -98,54 +104,80 @@ export const optimizeResume = catchAsync(async (req, res) => {
       messages: [],
       model: "gpt-4o-2024-08-06",
     }),
-  ]);
-
-  console.log("Formatting each section into structured JSON...", optimizedProjects);
-
-  const [personalInfoJson, summaryJson, skillsJson, experienceJson, projectsJson, educationJson] = await Promise.all([
     getLLMResponse({
-      systemPrompt: formatPersonalInfoPrompt(resume_text),
+      systemPrompt: getOptimizedAchievementsAwardsPrompt(resume_text, parsedAnalysis),
       messages: [],
-      responseSchema: personalInfoSchema,
       model: "gpt-4o-2024-08-06",
-      schemaName: "personal_info",
     }),
     getLLMResponse({
-      systemPrompt: formatSummaryPrompt(optimizedSummary),
+      systemPrompt: getOptimizedCertificationsPrompt(resume_text, parsedAnalysis),
       messages: [],
-      responseSchema: summarySchema,
       model: "gpt-4o-2024-08-06",
-      schemaName: "summary",
-    }),
-    getLLMResponse({
-      systemPrompt: formatSkillsPrompt(optimizedSkills),
-      messages: [],
-      responseSchema: skillsSchema,
-      model: "gpt-4o-2024-08-06",
-      schemaName: "skills",
-    }),
-    getLLMResponse({
-      systemPrompt: formatExperiencePrompt(optimizedExperience),
-      messages: [],
-      responseSchema: experienceSchema,
-      model: "gpt-4o-2024-08-06",
-      schemaName: "experience",
-    }),
-    getLLMResponse({
-      systemPrompt: formatProjectsPrompt(optimizedProjects),
-      messages: [],
-      responseSchema: projectsSchema,
-      model: "gpt-4o-2024-08-06",
-      schemaName: "projects",
-    }),
-    getLLMResponse({
-      systemPrompt: formatEducationPrompt(resume_text),
-      messages: [],
-      responseSchema: educationSchema,
-      model: "gpt-4o-2024-08-06",
-      schemaName: "education",
     }),
   ]);
+
+  console.log("Formatting each section into structured JSON...", optimizedSkills);
+  console.log("Formatting each section into structured JSON...", optimizedAchievementsAwards);
+
+  const [personalInfoJson, summaryJson, skillsJson, experienceJson, projectsJson, educationJson, achievementsAwardsJson, certificationsJson] =
+    await Promise.all([
+      getLLMResponse({
+        systemPrompt: formatPersonalInfoPrompt(resume_text),
+        messages: [],
+        responseSchema: personalInfoSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "personal_info",
+      }),
+      getLLMResponse({
+        systemPrompt: formatSummaryPrompt(optimizedSummary),
+        messages: [],
+        responseSchema: summarySchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "summary",
+      }),
+      getLLMResponse({
+        systemPrompt: formatSkillsPrompt(optimizedSkills),
+        messages: [],
+        responseSchema: skillsSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "skills",
+      }),
+      getLLMResponse({
+        systemPrompt: formatExperiencePrompt(optimizedExperience),
+        messages: [],
+        responseSchema: experienceSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "experience",
+      }),
+      getLLMResponse({
+        systemPrompt: formatProjectsPrompt(optimizedProjects),
+        messages: [],
+        responseSchema: projectsSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "projects",
+      }),
+      getLLMResponse({
+        systemPrompt: formatEducationPrompt(resume_text),
+        messages: [],
+        responseSchema: educationSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "education",
+      }),
+      getLLMResponse({
+        systemPrompt: formatAchievementsAwardsPrompt(optimizedAchievementsAwards),
+        messages: [],
+        responseSchema: achievementsAwardsSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "achievements_awards",
+      }),
+      getLLMResponse({
+        systemPrompt: formatCertificationsPrompt(optimizedCertifications),
+        messages: [],
+        responseSchema: certificationsSchema,
+        model: "gpt-4o-2024-08-06",
+        schemaName: "certifications",
+      }),
+    ]);
 
   // Parse all JSON responses and unwrap arrays from wrapper objects
   const personalInfo = JSON.parse(personalInfoJson);
@@ -154,6 +186,8 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const experienceWrapper = JSON.parse(experienceJson);
   const projectsWrapper = JSON.parse(projectsJson);
   const educationWrapper = JSON.parse(educationJson);
+  const achievementsAwardsWrapper = JSON.parse(achievementsAwardsJson);
+  const certificationsWrapper = JSON.parse(certificationsJson);
 
   // Combine all sections into one resume JSON
   const resumeJson = {
@@ -166,10 +200,10 @@ export const optimizeResume = catchAsync(async (req, res) => {
     skills: skillsWrapper.skills || [],
     experience: experienceWrapper.experience || [],
     education: educationWrapper.education || [],
-    certifications: [],
+    certifications: certificationsWrapper.certifications || [],
     projects: projectsWrapper.projects || [],
-    achievements: [],
-    awards: [],
+    achievements: achievementsAwardsWrapper.achievements || [],
+    awards: achievementsAwardsWrapper.awards || [],
     interests: [],
   };
 

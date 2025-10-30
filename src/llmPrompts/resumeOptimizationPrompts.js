@@ -38,7 +38,7 @@ Write an optimized professional summary section that:
 
 export const getOptimizedSkillsPrompt = (resumeText, resumeAnalysis) => {
   return `
-You are a professional resume writer specializing in skills section optimization for ATS compatibility and keyword optimization.
+You are a professional resume writer specializing in SKILLS section optimization for ATS compatibility and recruiter readability.
 
 ==========================
 **Resume**:
@@ -50,27 +50,34 @@ ${resumeText}
 ${JSON.stringify(resumeAnalysis, null, 2)}
 ==========================
 
-**Your Task**:
-Create an optimized skills section that:
-1. Incorporates the missing keywords naturally based on the candidate's actual experience
-2. Improves ATS compatibility by including industry-standard skill terminology
-3. Organizes skills into relevant categories
-4. Only includes skills that can be justified by the candidate's experience in the resume
-5. Uses consistent terminology (prefers industry-standard terms over informal names)
+YOUR TASK:
+1) RETAIN all skills exactly as listed in the resume's existing Skills section, preserving their original category names and items.
+2) EXTRACT additional skills, tools, frameworks, and technologies explicitly mentioned anywhere else in the resume (Experience, Projects, Achievements) that are NOT already in the Skills section.
+3) INTEGRATE missing keywords from the Resume Analysis.
+4) ADD the extracted items into an appropriate category while keeping the original categories intact. If a fitting category exists, use it; otherwise create a new, specific, related category name.
+5) BAN generic category names such as "Additional", "Other", or "Miscellaneous". Always use clear, domain-specific categories.
+6) USE industry-standard terminology (normalize aliases to canonical names where appropriate), and DEDUPLICATE within categories.
+7) DO NOT remove any original skills or categories. Only add.
 
-**CRITICAL RULE**: You CANNOT remove ANY skill or information from the original resume. You can only:
-- Add new skills based on the resume analysis
-- Enhance skill descriptions with more detail
-- Improve organization and presentation
+CATEGORY MAPPING GUIDANCE (examples, not exhaustive):
+- React Native → Mobile App Development
+- Swift, Kotlin → Mobile App Development
+- WebSockets, Socket.IO → Real-time / Messaging
+- Kafka, RabbitMQ → Real-time / Messaging
+- NestJS, Express, Django, Spring Boot → Backend
+- React, Next.js, Angular, Vue → Frontend
+- PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch → Databases
+- AWS, GCP, Azure, Docker, Kubernetes, Terraform → Cloud & DevOps
+- Python, TypeScript, Java, Go, C# → Programming Languages
+- Jest, Cypress, Playwright → Testing
+- GitHub Actions, Jenkins, CircleCI → CI/CD
 
-**Instructions**:
-- Review the entire resume analysis above to understand what keywords are missing and what improvements are needed
-- Review the resume text to identify ALL skills the candidate has demonstrated - YOU MUST INCLUDE ALL OF THEM
-- Add missing keywords ONLY if they align with the candidate's experience
-- Do NOT add skills the candidate doesn't have
-- Use industry-standard names for tools and technologies
-- Leverage any positive feedback from the analysis regarding the candidate's technical foundation
-- Use your judgment to write naturally without enforced formatting constraints
+OUTPUT REQUIREMENTS:
+- Return a cleanly written Skills section in text that groups items under category headings.
+- Keep original category names and their items as-is, appending new items where applicable.
+- Integrate analysis keywords in skill section.
+- If no existing Skills section exists, create sensible, specific categories (never "Additional/Other/Miscellaneous") and list all skills you extracted.
+- Do NOT include categories with no items.
 `;
 };
 
@@ -100,7 +107,7 @@ Rewrite and optimize the Projects section following these strict requirements:
 4. Enhance clarity, professionalism, and ATS compatibility
 
 **CRITICAL CONSTRAINTS:**
-⚠️ **MANDATORY - INFORMATION PRESERVATION:**
+ **MANDATORY - INFORMATION PRESERVATION:**
 - You MUST retain ALL information, details, technologies, achievements, and metrics from the original Projects section
 - You can ADD new information, details, and context to make projects more comprehensive
 - You can REPHRASE and REORGANIZE existing information for better impact
@@ -179,7 +186,7 @@ Rewrite and optimize the Experience section following these strict requirements:
 5. Improve ATS compatibility and recruiter readability
 
 **CRITICAL CONSTRAINTS:**
-⚠️ **MANDATORY - INFORMATION PRESERVATION:**
+**MANDATORY - INFORMATION PRESERVATION:**
 - You MUST retain ALL information, details, responsibilities, achievements, technologies, and metrics from the original Experience section
 - You can ADD new context, details, and elaboration to make experiences more comprehensive
 - You can REPHRASE and REORGANIZE existing information for stronger impact
@@ -247,4 +254,62 @@ Provide ONLY the rewritten Experience section in clean, properly formatted text.
 - If a role has limited information in the original, expand it with reasonable context while maintaining accuracy
 
 Generate the optimized Experience section now:`;
+};
+
+export const getOptimizedAchievementsAwardsPrompt = (resumeText, resumeAnalysis) => {
+  return `
+You are a professional resume writer. Optimize Achievements and Awards with precise conditional behavior.
+
+==========================
+**Resume**:
+${resumeText}
+==========================
+
+==========================
+**Resume Analysis**:
+${JSON.stringify(resumeAnalysis, null, 2)}
+==========================
+
+STRICT BEHAVIOR:
+- If BOTH Achievements and Awards exist in the resume: generate BOTH sections.
+- If ONLY Achievements exist: generate ONLY Achievements.
+- If ONLY Awards exist: generate ONLY Awards.
+- If NEITHER exists: return an empty string (no content).
+
+ENHANCEMENT RULES:
+1) Preserve all existing items; do not remove content.
+2) Strengthen with measurable outcomes, scope, and impact where supported by resume content.
+3) Use strong action verbs and concise, professional phrasing.
+4) Integrate missing keywords naturally only when justified by resume content.
+
+OUTPUT FORMAT (plain text, no JSON):
+- Use clear section headers like "Achievements" and/or "Awards" only if that section is present.
+- Under Achievements: bullet list of improved points.
+- Under Awards: for each award include title, issuer, year; bullet context if useful.
+- If neither section exists, output must be exactly empty.
+`;
+};
+
+export const getOptimizedCertificationsPrompt = (resumeText, resumeAnalysis) => {
+  return `
+You are a professional resume writer. Optimize ONLY the Certifications section for ATS clarity and relevance.
+
+==========================
+**Resume**:
+${resumeText}
+==========================
+
+==========================
+**Resume Analysis**:
+${JSON.stringify(resumeAnalysis, null, 2)}
+==========================
+
+Requirements:
+1) Preserve all existing certifications; do not remove any.
+2) Ensure each entry clearly shows name, issuer, and year (if available).
+3) Add brief value-focused notes only if justified by resume content.
+4) Integrate missing keywords naturally when warranted.
+
+Output: Return ONLY the optimized Certifications section as plain text (no JSON).
+`;
 };
