@@ -70,7 +70,7 @@ export const scrapJob = catchAsync(async (req, res) => {
       schemaName: "job_gap_analysis",
     });
     const parsedGapAnalysis = JSON.parse(gapAnalysis);
-    console.log("parsed gap analysis", parsedGapAnalysis);
+
     // Store in database
     const job = await createJob(resume_id, job_url, jobDescription, gapAnalysis);
 

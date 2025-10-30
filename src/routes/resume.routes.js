@@ -6,6 +6,6 @@ import { resumeFileValidator } from "../validators/resumeFile.validator.js";
 
 const router = Router();
 
-router.post("/parse", upload.single("resume"), resumeFileValidator, parseResume);
+router.post("/parse", requireAuth, upload.single("resume"), resumeFileValidator, parseResume);
 
 export default router;

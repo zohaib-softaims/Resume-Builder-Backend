@@ -4,7 +4,6 @@ import { createServer } from "http";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import authRoutes from "./routes/auth.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import protectedRoutes from "./routes/protected.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
@@ -30,7 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(clerkMiddleware());
 
-app.use("/api/auth", authRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/resume", resumeRoutes);
