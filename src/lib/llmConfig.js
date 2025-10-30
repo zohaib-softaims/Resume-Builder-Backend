@@ -33,6 +33,6 @@ export async function getLLMResponse({ systemPrompt, messages, model = "gpt-4o-2
     return response.choices[0].message.content;
   } catch (error) {
     console.error("LLM Error:", error);
-    return "Sorry, something went wrong with the assistant.";
+    throw error;
   }
 }

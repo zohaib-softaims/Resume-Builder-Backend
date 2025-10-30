@@ -22,3 +22,28 @@ export const getResumeById = async (resume_id) => {
     },
   });
 };
+
+export const getResumeWithAnalysis = async (resume_id, user_id) => {
+  return prisma.resume.findFirst({
+    where: {
+      id: resume_id,
+      user_id: user_id,
+    },
+    select: {
+      id: true,
+      resume_text: true,
+      resume_analysis: true,
+    },
+  });
+};
+
+export const updateOptimizedResumeUrl = async (resume_id, optimized_resumeUrl) => {
+  return prisma.resume.update({
+    where: { id: resume_id },
+    data: { optimized_resumeUrl },
+    select: {
+      id: true,
+      optimized_resumeUrl: true,
+    },
+  });
+};
