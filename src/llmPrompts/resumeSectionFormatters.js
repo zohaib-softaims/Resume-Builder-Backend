@@ -86,7 +86,7 @@ ${optimizedSkills}
 **Instructions**:
 - Parse the text to find ALL skills mentioned
 - YOU MUST INCLUDE EVERY SKILL from the optimized skills text
-- Group skills under meaningful categories (e.g., Programming, Frameworks, Tools, Cloud, Soft Skills)
+- Group skills under meaningful categories (e.g., Frontend, Backend, Cloud, Programming, Frameworks, Tools, Cloud, Soft Skills)
 - Return as structured JSON
 
 **CRITICAL**: Do not remove any skills. Include everything from the optimized text.
@@ -94,8 +94,8 @@ ${optimizedSkills}
 **Required JSON Format**:
 {
   "skills": [
-    { "category": "Programming", "items": ["JavaScript", "TypeScript"] },
-    { "category": "Frameworks", "items": ["React", "Next.js", "Express"] },
+    { "category": "Frontend", "items": ["JavaScript", "TypeScript"] },
+    { "category": "Backend", "items": ["React", "Next.js", "Express"] },
     { "category": "Soft Skills", "items": ["Leadership", "Communication"] }
   ]
 }
