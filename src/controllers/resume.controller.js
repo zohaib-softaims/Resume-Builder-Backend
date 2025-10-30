@@ -99,7 +99,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
     }),
   ]);
 
-  console.log("Formatting each section into structured JSON...");
+  console.log("Formatting each section into structured JSON...", optimizedProjects);
 
   const [personalInfoJson, summaryText, skillsJson, experienceJson, projectsJson, educationJson] = await Promise.all([
     getLLMResponse({
@@ -146,19 +146,27 @@ export const optimizeResume = catchAsync(async (req, res) => {
 
   // Parse all JSON responses and unwrap arrays from wrapper objects
   const personalInfo = JSON.parse(personalInfoJson);
-  const skills = JSON.parse(skillsJson);
+  const skillsWrapper = JSON.parse(skillsJson);
   const experienceWrapper = JSON.parse(experienceJson);
   const projectsWrapper = JSON.parse(projectsJson);
   const educationWrapper = JSON.parse(educationJson);
 
   // Combine all sections into one resume JSON
   const resumeJson = {
-    personal_info: personalInfo,
-    professional_summary: summaryText.trim(),
-    skills,
+    name: personalInfo.name || "",
+    email: personalInfo.email || "",
+    phone: personalInfo.phone || "",
+    linkedin: personalInfo.linkedin || "",
+    location: personalInfo.location || "",
+    summary: (summaryText || "").trim(),
+    skills: skillsWrapper.skills || [],
     experience: experienceWrapper.experience || [],
-    projects: projectsWrapper.projects || [],
     education: educationWrapper.education || [],
+    certifications: [],
+    projects: projectsWrapper.projects || [],
+    achievements: [],
+    awards: [],
+    interests: [],
   };
 
   // Generate HTML from the structured resume data

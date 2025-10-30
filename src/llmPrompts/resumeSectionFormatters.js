@@ -71,23 +71,23 @@ You are a resume formatter. The following is an optimized skills section. Parse 
 **Optimized Skills**:
 ${optimizedSkills}
 
-**Task**: Extract all skills and organize them into technical_skills, soft_skills, and certifications.
+**Task**: Extract all skills and organize them into an array of categories.
 
 **Instructions**:
 - Parse the text to find ALL skills mentioned
 - YOU MUST INCLUDE EVERY SKILL from the optimized skills text
-- Categorize technical skills (programming languages, frameworks, tools, technologies)
-- Categorize soft skills (communication, leadership, teamwork, etc.)
-- Extract certifications if mentioned
+- Group skills under meaningful categories (e.g., Programming, Frameworks, Tools, Cloud, Soft Skills)
 - Return as structured JSON
 
 **CRITICAL**: Do not remove any skills. Include everything from the optimized text.
 
 **Required JSON Format**:
 {
-  "technical_skills": ["JavaScript", "React", "Node.js"],
-  "soft_skills": ["Leadership", "Communication"],
-  "certifications": ["AWS Certified", "Google Cloud"]
+  "skills": [
+    { "category": "Programming", "items": ["JavaScript", "TypeScript"] },
+    { "category": "Frameworks", "items": ["React", "Next.js", "Express"] },
+    { "category": "Soft Skills", "items": ["Leadership", "Communication"] }
+  ]
 }
 
 Return ONLY the JSON object, no additional text or markdown.
@@ -97,20 +97,23 @@ Return ONLY the JSON object, no additional text or markdown.
 export const skillsSchema = {
   type: "object",
   properties: {
-    technical_skills: {
+    skills: {
       type: "array",
-      items: { type: "string" },
-    },
-    soft_skills: {
-      type: "array",
-      items: { type: "string" },
-    },
-    certifications: {
-      type: "array",
-      items: { type: "string" },
+      items: {
+        type: "object",
+        properties: {
+          category: { type: "string" },
+          items: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: ["category", "items"],
+        additionalProperties: false,
+      },
     },
   },
-  required: ["technical_skills", "soft_skills", "certifications"],
+  required: ["skills"],
   additionalProperties: false,
 };
 
@@ -121,15 +124,15 @@ You are a resume formatter. The following is an optimized experience section. Pa
 **Optimized Experience**:
 ${optimizedExperience}
 
-**Task**: Extract each job experience and structure it with company, position, location, dates, and responsibilities.
+**Task**: Extract each job experience and structure it with company, position, location, years, and description_points.
 
 **Instructions**:
 - Parse each job entry from the text
 - YOU MUST INCLUDE ALL jobs/positions from the optimized experience
 - Extract company name, job title/position
 - Extract location if mentioned
-- Extract start and end dates (format as "MMM YYYY" like "Jan 2020", "Present")
-- Extract ALL responsibilities/achievements as separate strings in the array
+- Extract a single years string formatted as "StartDate–EndDate" (example: "Jan 2020–Present")
+- Extract ALL responsibilities/achievements as separate strings in description_points
 - Each responsibility should be a separate string in the array
 - Return as array of experience objects
 
@@ -142,9 +145,8 @@ ${optimizedExperience}
       "company": "Company Name",
       "position": "Job Title",
       "location": "City, State",
-      "start_date": "Jan 2020",
-      "end_date": "Present",
-      "responsibilities": [
+      "years": "Jan 2020–Present",
+      "description_points": [
         "Achievement bullet point 1",
         "Achievement bullet point 2"
       ]
@@ -167,14 +169,13 @@ export const experienceSchema = {
           company: { type: "string" },
           position: { type: "string" },
           location: { type: "string" },
-          start_date: { type: "string" },
-          end_date: { type: "string" },
-          responsibilities: {
+          years: { type: "string" },
+          description_points: {
             type: "array",
             items: { type: "string" },
           },
         },
-        required: ["company", "position", "location", "start_date", "end_date", "responsibilities"],
+        required: ["company", "position", "location", "years", "description_points"],
         additionalProperties: false,
       },
     },
@@ -190,16 +191,15 @@ You are a resume formatter. The following is an optimized projects section. Pars
 **Optimized Projects**:
 ${optimizedProjects}
 
-**Task**: Extract each project and structure it with name, technologies, description, and achievements.
+**Task**: Extract each project and structure it with title, tech_stack, link, and description_points.
 
 **Instructions**:
 - Parse each project from the text
 - YOU MUST INCLUDE ALL projects from the optimized projects
-- Extract project name
-- Extract technologies used (as array)
-- Extract brief description
-- Extract ALL achievements/features as separate strings in the array
-- Each achievement should be a separate string in the array
+- Extract project title
+- Extract tech_stack (as array of strings)
+- Extract link if provided; if not present, output an empty string
+- Extract ALL description_points as separate strings in the array
 - Return as array of project objects
 
 **CRITICAL**: Do not remove any projects or achievements. Include everything from the optimized text.
@@ -208,13 +208,13 @@ ${optimizedProjects}
 {
   "projects": [
     {
-      "name": "Project Name",
-      "technologies": ["React", "Node.js"],
-      "description": "Brief project description",
-      "achievements": [
+      "title": "Project Name",
+      "description_points": [
         "Achievement 1 with metrics",
         "Achievement 2 with impact"
-      ]
+      ],
+      "tech_stack": ["React", "Node.js"],
+      "link": "https://example.com"
     }
   ]
 }
@@ -231,18 +231,18 @@ export const projectsSchema = {
       items: {
         type: "object",
         properties: {
-          name: { type: "string" },
-          technologies: {
+          title: { type: "string" },
+          description_points: {
             type: "array",
             items: { type: "string" },
           },
-          description: { type: "string" },
-          achievements: {
+          tech_stack: {
             type: "array",
             items: { type: "string" },
           },
+          link: { type: "string" },
         },
-        required: ["name", "technologies", "description", "achievements"],
+        required: ["title", "description_points", "tech_stack", "link"],
         additionalProperties: false,
       },
     },
@@ -258,15 +258,14 @@ You are a resume data extraction expert. Extract education information from the 
 **Resume Text**:
 ${originalResumeText}
 
-**Task**: Extract education details including institution, degree, location, graduation date, and coursework.
+**Task**: Extract education details including degree, institution, location, and years.
 
 **Instructions**:
 - Look for education section in the resume
 - YOU MUST INCLUDE ALL education entries from the resume
-- Extract institution name, degree earned
+- Extract degree and institution name
 - Extract location if mentioned
-- Extract graduation date (format as "MMM YYYY" or "Year")
-- Extract ALL relevant coursework if mentioned
+- Extract a single years string formatted as "StartDate–EndDate" (example: "2016–2020" or "May 2020")
 - Return as array of education objects
 
 **CRITICAL**: Do not remove any education entries. Include everything from the resume text.
@@ -275,11 +274,10 @@ ${originalResumeText}
 {
   "education": [
     {
-      "institution": "University Name",
       "degree": "Bachelor of Science in Computer Science",
+      "institution": "University Name",
       "location": "City, State",
-      "graduation_date": "May 2020",
-      "relevant_coursework": ["Data Structures", "Algorithms"]
+      "years": "2016–2020"
     }
   ]
 }
@@ -298,16 +296,12 @@ export const educationSchema = {
       items: {
         type: "object",
         properties: {
-          institution: { type: "string" },
           degree: { type: "string" },
+          institution: { type: "string" },
           location: { type: "string" },
-          graduation_date: { type: "string" },
-          relevant_coursework: {
-            type: "array",
-            items: { type: "string" },
-          },
+          years: { type: "string" },
         },
-        required: ["institution", "degree", "location", "graduation_date", "relevant_coursework"],
+        required: ["degree", "institution", "location", "years"],
         additionalProperties: false,
       },
     },
