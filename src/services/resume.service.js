@@ -12,3 +12,13 @@ export const createResume = async (user_id, resume_text, resume_fileUrl, resume_
 
   return resume;
 };
+
+export const getResumeById = async (resume_id) => {
+  return prisma.resume.findUnique({
+    where: { id: resume_id },
+    select: {
+      id: true,
+      resume_text: true,
+    },
+  });
+};

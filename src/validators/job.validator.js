@@ -7,6 +7,14 @@ const jobUrlSchema = z
   })
   .url("Please provide a valid URL");
 
+const resumeIdSchema = z
+  .string({
+    required_error: "resume_id is required",
+    invalid_type_error: "resume_id must be a string",
+  })
+  .min(1, "resume_id cannot be empty");
+
 export const scrapJobSchema = z.object({
   job_url: jobUrlSchema,
+  resume_id: resumeIdSchema.optional(),
 });
