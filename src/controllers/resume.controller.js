@@ -4,7 +4,7 @@ import { sanitizedText } from "../utils/sanitizedText.js";
 import { resumeAnalysisPrompt, resumeAnalysisSchema } from "../llmPrompts/resumeAnalysisPrompt.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
 import { s3Uploader } from "../utils/s3Uploader.js";
-import { createResume, getResumeWithAnalysis, updateOptimizedResumeUrl } from "../services/resume.service.js";
+import { createResume, getResumeById, updateResume } from "../services/resume.service.js";
 import {
   getOptimizedSummaryPrompt,
   getOptimizedSkillsPrompt,
@@ -66,10 +66,7 @@ export const parseResume = catchAsync(async (req, res) => {
 
 export const optimizeResume = catchAsync(async (req, res) => {
   const { resume_id } = req.body;
-  const user_id = "user_34jYMUY6A4AWtscZ510Uxdd2QLs";
-
-  // Fetch resume with analysis from database
-  const resume = await getResumeWithAnalysis(resume_id, user_id);
+  const resume = await getResumeById(resume_id);
 
   if (!resume) {
     return res.status(404).json({
@@ -109,8 +106,6 @@ export const optimizeResume = catchAsync(async (req, res) => {
       model: "gpt-4o-2024-08-06",
     }),
   ]);
-
-  console.log("Formatting each section into structured JSON...", optimizedProjects);
 
   const [personalInfoJson, summaryJson, skillsJson, experienceJson, projectsJson, educationJson, achievementsAwardsJson, certificationsJson] =
     await Promise.all([
@@ -230,7 +225,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
   console.log("PDF uploaded to AWS S3 successfully:", uploadResult.url);
 
   // Update resume record with the optimized PDF URL
-  await updateOptimizedResumeUrl(resume_id, uploadResult.url);
+  await updateResume(resume_id, { optimized_resumeUrl: uploadResult.url });
 
   console.log("Resume optimization and PDF generation completed successfully");
 
