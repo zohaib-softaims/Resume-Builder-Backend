@@ -110,8 +110,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
     }),
   ]);
 
-  console.log("Formatting each section into structured JSON...", optimizedSkills);
-  console.log("Formatting each section into structured JSON...", optimizedAchievementsAwards);
+  console.log("Formatting each section into structured JSON...", optimizedProjects);
 
   const [personalInfoJson, summaryJson, skillsJson, experienceJson, projectsJson, educationJson, achievementsAwardsJson, certificationsJson] =
     await Promise.all([
@@ -183,6 +182,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const achievementsAwardsWrapper = JSON.parse(achievementsAwardsJson);
   const certificationsWrapper = JSON.parse(certificationsJson);
 
+  console.log("Formatting each section into structured JSON...", projectsWrapper);
   // Combine all sections into one resume JSON
   const resumeJson = {
     name: personalInfo.name || "",

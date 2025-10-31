@@ -81,7 +81,7 @@ OUTPUT REQUIREMENTS:
 };
 
 export const getOptimizedProjectsPrompt = (resumeText, resumeAnalysis) => {
-  return `You are an expert resume optimization specialist with deep knowledge of ATS systems, industry best practices, and technical recruiting standards. Your task is to rewrite and enhance ONLY the Projects section of the provided resume.
+  return `You are an expert resume optimization specialist with deep knowledge of ATS systems, industry best practices, and technical recruiting standards.
 
 ==========================
 **ORIGINAL RESUME**:
@@ -97,65 +97,138 @@ ${JSON.stringify(resumeAnalysis, null, 2)}
 **YOUR TASK**:
 ==========================
 
-Rewrite and optimize the Projects section following these strict requirements:
+Rewrite and optimize ONLY the Projects section following these requirements:
 
-**PRIMARY OBJECTIVES:**
-1. Address all identified weaknesses from the resume analysis (EXCEPT any suggestions about making content more concise or reducing length)
-2. Strategically incorporate missing keywords identified in the keyword analysis
-3. Strengthen technical descriptions and impact statements
-4. Enhance clarity, professionalism, and ATS compatibility
+**CRITICAL RULE - INFORMATION PRESERVATION:**
+⚠️ You MUST include EVERY piece of information from the original Projects section. This means:
+- Every project name
+- Every company/organization name
+- Every technology, framework, library, or tool mentioned
+- Every number, metric, percentage, or time period
+- Every feature, functionality, or component described
+- Every achievement or outcome mentioned
+- Every descriptive word (modular, scalable, responsive, etc.)
 
-**CRITICAL CONSTRAINTS:**
- **MANDATORY - INFORMATION PRESERVATION:**
-- You MUST retain ALL information, details, technologies, achievements, and metrics from the original Projects section
-- You can ADD new information, details, and context to make projects more comprehensive
-- You can REPHRASE and REORGANIZE existing information for better impact
-- You CANNOT remove, omit, or discard ANY piece of information from the original projects
-- Even if the analysis suggests the resume is too lengthy, IGNORE that specific weakness - focus on enriching, not condensing
+Think of this as EXPANDING and ENHANCING the original, NEVER reducing or summarizing it.
 
-**ENHANCEMENT GUIDELINES:**
+**TRANSFORMATION STRATEGY:**
 
-1. **Keyword Integration:**
-   - Naturally weave in missing keywords from the analysis
-   - Prioritize technical skills, tools, and methodologies relevant to target roles
-   - Ensure keywords fit contextually and don't feel forced
+Instead of copying the original, transform it using these techniques:
 
-2. **Structure & Formatting:**
-   - Use strong action verbs (Developed, Engineered, Implemented, Architected, Optimized, etc.)
+1. **Restructure Sentences Completely:**
+   - Change sentence patterns and flow
+   - Start bullets with different action verbs
+   - Vary the rhythm and structure across bullets
+   
+   Example:
+   - Original: "Built a web app using React and Node.js"
+   - Transform: "Engineered a full-stack web application leveraging React for the frontend and Node.js for server-side logic"
 
+2. **Add Technical Depth:**
+   - Expand on HOW things were implemented
+   - Mention architectural patterns, design decisions
+   - Add technical context that would naturally exist
+   
+   Example:
+   - Original: "Implemented user authentication"
+   - Enhanced: "Implemented secure user authentication using JWT tokens with bcrypt password hashing and role-based access control (RBAC)"
 
-3. **Content Enhancement:**
-   - Expand on technical implementations with more specific details
-   - Add context about project scope, team size, or duration if missing
-   - Highlight problem-solving approaches and technical challenges overcome
-   - Emphasize measurable outcomes (performance improvements, user impact, efficiency gains)
-   - Include relevant technologies, frameworks, and tools used
+3. **Add Context & Scale:**
+   - Add reasonable context about project scope
+   - Include scale indicators (users, data volume, requests)
+   - Mention team structure or collaboration
+   
+   Example:
+   - Original: "Developed API endpoints"
+   - Enhanced: "Developed 15+ RESTful API endpoints handling 50K+ daily requests with comprehensive error handling and validation"
 
-4. **Weakness Mitigation:**
-   - Address weak or vague statements identified in the analysis
-   - Strengthen passive descriptions with active, impactful language
-   - Add specificity where the analysis identified generic statements
-   - Improve technical depth where noted as lacking
+4. **Show Problem → Solution → Impact:**
+   - Frame work as solving specific problems
+   - Explain your technical approach
+   - Quantify or describe the impact
+   
+   Example:
+   - Original: "Optimized database queries"
+   - Enhanced: "Resolved performance bottlenecks by optimizing complex SQL queries and implementing database indexing, reducing query execution time from 3 seconds to 200ms"
 
-5. **Quality Standards:**
-   - Ensure consistent tone and formatting across all projects
-   - Maintain professional, confident language
-   - Use present tense for ongoing projects, past tense for completed ones
-   - Avoid buzzwords without substance - back claims with concrete details
-   - Ensure each bullet point demonstrates value and technical competency
+5. **Integrate Missing Keywords Naturally:**
+   From the Resume Analysis, identify missing keywords and weave them into descriptions where they fit contextually.
+   
+   Example:
+   - If "CI/CD" is missing and you deployed: "Established CI/CD pipeline using GitHub Actions..."
+   - If "Microservices" is missing and architecture allows: "...following microservices architecture principles"
+
+**ENHANCEMENT EXAMPLES:**
+
+❌ TOO SIMILAR (avoid this):
+Original: "Created a dashboard using React and integrated it with backend API"
+Bad rewrite: "Developed a dashboard with React and connected it to the backend API"
+
+✅ PROPERLY TRANSFORMED (do this):
+"Architected an interactive analytics dashboard using React with Material-UI components, integrating RESTful API endpoints for real-time data visualization and enabling users to generate custom reports with 5+ filtering options"
+
+---
+
+❌ TOO SIMILAR:
+Original: "Implemented responsive design for mobile devices"
+Bad rewrite: "Built responsive design to support mobile devices"
+
+✅ PROPERLY TRANSFORMED:
+"Engineered mobile-first responsive layouts using CSS Grid and Flexbox with Tailwind CSS, ensuring pixel-perfect rendering across iOS and Android devices and achieving 98+ Lighthouse mobile performance score"
+
+---
+
+❌ TOO SIMILAR:
+Original: "Used Docker for containerization"
+Bad rewrite: "Applied Docker for application containerization"
+
+✅ PROPERLY TRANSFORMED:
+"Containerized the application using Docker with multi-stage builds to reduce image size by 60%, and orchestrated local development environments using Docker Compose with automated database seeding and hot-reloading for rapid iteration"
+
+**STYLE GUIDELINES:**
+
+- **Strong Action Verbs**: Architected, Engineered, Spearheaded, Designed, Implemented, Optimized, Developed, Automated, Streamlined, Integrated, Orchestrated, Established
+- **Vary Your Openings**: Don't start every bullet the same way
+- **Be Specific**: Replace vague terms with precise technical language
+- **Show Value**: Every bullet should demonstrate clear value delivered
+- **Use Numbers**: Add metrics where reasonable (response times, user counts, performance gains, feature counts)
+
+**VERIFICATION METHOD:**
+
+After writing each project, ask yourself:
+1. Did I mention every technology from the original? ✓
+2. Did I keep every metric/number? ✓
+3. Did I preserve every feature/functionality described? ✓
+4. Did I include the company/organization name if it was there? ✓
+5. Is this substantially different in wording from the original? ✓
+6. Did I add technical depth and context? ✓
+7. Did I integrate relevant missing keywords? ✓
+
+If any answer is NO, revise before moving to the next project.
 
 **OUTPUT FORMAT:**
-Provide ONLY the rewritten Projects section in clean, properly formatted text. Use this structure:
 
+PROJECTS
 
+**[Project Name]** | [Technology Stack]
+[Compelling 1-2 sentence description of what the project is and its purpose]
+- [Transformed and enhanced bullet point]
+- [Transformed and enhanced bullet point]
+- [Transformed and enhanced bullet point]
+[Continue for all relevant work...]
 
-**IMPORTANT REMINDERS:**
-- Focus ONLY on the Projects section - do not modify other resume sections
-- Every detail from the original projects MUST appear in the optimized version (enhanced, but present)
-- Your output should be MORE detailed and comprehensive than the original, not shorter
-- Prioritize clarity, impact, and ATS optimization while preserving all original information
+[Next project...]
 
-Generate the optimized Projects section now:`;
+**IMPORTANT NOTES:**
+
+- Read the ENTIRE original Projects section carefully before starting
+- Preserve EVERYTHING but express it better
+- Add depth, context, and technical details
+- Make it substantially different in wording
+- Ensure every project is more detailed than the original
+- If you're unsure whether to include something, INCLUDE IT
+
+Generate the enhanced Projects section now:`;
 };
 
 export const getOptimizedExperiencePrompt = (resumeText, resumeAnalysis) => {
