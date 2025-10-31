@@ -289,27 +289,3 @@ OUTPUT FORMAT (plain text, no JSON):
 - If neither section exists, output must be exactly empty.
 `;
 };
-
-export const getOptimizedCertificationsPrompt = (resumeText, resumeAnalysis) => {
-  return `
-You are a professional resume writer. Optimize ONLY the Certifications section for ATS clarity and relevance.
-
-==========================
-**Resume**:
-${resumeText}
-==========================
-
-==========================
-**Resume Analysis**:
-${JSON.stringify(resumeAnalysis, null, 2)}
-==========================
-
-Requirements:
-1) Preserve all existing certifications; do not remove any.
-2) Ensure each entry clearly shows name, issuer, and year (if available).
-3) Add brief value-focused notes only if justified by resume content.
-4) Integrate missing keywords naturally when warranted.
-
-Output: Return ONLY the optimized Certifications section as plain text (no JSON).
-`;
-};

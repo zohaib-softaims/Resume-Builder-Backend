@@ -11,7 +11,6 @@ import {
   getOptimizedProjectsPrompt,
   getOptimizedExperiencePrompt,
   getOptimizedAchievementsAwardsPrompt,
-  getOptimizedCertificationsPrompt,
 } from "../llmPrompts/resumeOptimizationPrompts.js";
 import {
   formatPersonalInfoPrompt,
@@ -82,8 +81,8 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const { resume_text, resume_analysis } = resume;
   const parsedAnalysis = JSON.parse(resume_analysis);
 
-  // Call multiple prompts in parallel for optimization
-  const [optimizedSummary, optimizedSkills, optimizedProjects, optimizedExperience, optimizedAchievementsAwards, optimizedCertifications] = await Promise.all([
+  // Call multiple prompts in parallel for optimization (no certifications optimization)
+  const [optimizedSummary, optimizedSkills, optimizedProjects, optimizedExperience, optimizedAchievementsAwards] = await Promise.all([
     getLLMResponse({
       systemPrompt: getOptimizedSummaryPrompt(resume_text, parsedAnalysis),
       messages: [],
@@ -106,11 +105,6 @@ export const optimizeResume = catchAsync(async (req, res) => {
     }),
     getLLMResponse({
       systemPrompt: getOptimizedAchievementsAwardsPrompt(resume_text, parsedAnalysis),
-      messages: [],
-      model: "gpt-4o-2024-08-06",
-    }),
-    getLLMResponse({
-      systemPrompt: getOptimizedCertificationsPrompt(resume_text, parsedAnalysis),
       messages: [],
       model: "gpt-4o-2024-08-06",
     }),
@@ -171,7 +165,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
         schemaName: "achievements_awards",
       }),
       getLLMResponse({
-        systemPrompt: formatCertificationsPrompt(optimizedCertifications),
+        systemPrompt: formatCertificationsPrompt(resume_text),
         messages: [],
         responseSchema: certificationsSchema,
         model: "gpt-4o-2024-08-06",

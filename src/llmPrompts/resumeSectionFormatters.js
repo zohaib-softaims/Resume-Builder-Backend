@@ -337,7 +337,7 @@ You are a resume formatter. The following is an optimized certifications section
 **Optimized Certifications**:
 ${optimizedCertifications}
 
-**Task**: Extract each certification with name, issuer, year, and description_points.
+**Task**: Extract each certification with name, issuer, year, and description_points. If none are present, return an empty array.
 
 **Instructions**:
 - Parse each certification entry
@@ -359,6 +359,8 @@ ${optimizedCertifications}
     }
   ]
 }
+
+If no certifications are found, return { "certifications": [] }.
 
 Return ONLY the JSON object, no additional text or markdown.
 `;
