@@ -25,3 +25,10 @@ export const updateResume = async (resume_id, updateData) => {
     data: updateData,
   });
 };
+
+export const getResumesByUserId = async (user_id) => {
+  return prisma.resume.findMany({
+    where: { user_id },
+    orderBy: { createdAt: "desc" },
+  });
+};

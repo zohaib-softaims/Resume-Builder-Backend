@@ -4,7 +4,7 @@ import { sanitizedText } from "../utils/sanitizedText.js";
 import { resumeAnalysisPrompt, resumeAnalysisSchema } from "../llmPrompts/resumeAnalysisPrompt.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
 import { s3Uploader } from "../utils/s3Uploader.js";
-import { createResume, getResumeById, updateResume } from "../services/resume.service.js";
+import { createResume, getResumeById, updateResume, getResumesByUserId } from "../services/resume.service.js";
 import {
   getOptimizedSummaryPrompt,
   getOptimizedSkillsPrompt,
@@ -235,6 +235,21 @@ export const optimizeResume = catchAsync(async (req, res) => {
     data: {
       resume_id,
       pdf_url: uploadResult.url,
+    },
+  });
+});
+
+export const getUserResumes = catchAsync(async (req, res) => {
+  const user_id = req.auth.userId;
+
+  const resumes = await getResumesByUserId(user_id);
+
+  res.status(200).json({
+    success: true,
+    message: "Resumes fetched successfully",
+    data: {
+      resumes,
+      count: resumes.length,
     },
   });
 });
