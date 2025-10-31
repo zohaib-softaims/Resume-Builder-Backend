@@ -52,10 +52,9 @@ ${JSON.stringify(resumeAnalysis, null, 2)}
 
 YOUR TASK:
 1) RETAIN all skills exactly as listed in the resume's existing Skills section, preserving their original category names and items.
-2) EXTRACT additional skills, tools, frameworks, and technologies explicitly mentioned anywhere else in the resume (Experience, Projects, Achievements) that are NOT already in the Skills section.
-3) INTEGRATE missing keywords from the Resume Analysis.
-4) ADD the extracted items into an appropriate category while keeping the original categories intact. If a fitting category exists, use it; otherwise create a new, specific, related category name.
-5) BAN generic category names such as "Additional", "Other", or "Miscellaneous". Always use clear, domain-specific categories.
+2) EXTRACT additional skills, tools, frameworks, and technologies explicitly mentioned anywhere else in the resume (Experience, Projects, Achievements) that are NOT already in the Skills section. ADD the extracted skills, tools, technologies, frameworks into an appropriate category while keeping the original categories intact. If a fitting category exists, use it; otherwise create a new, specific, related category name.
+3) Extract missing keywords from the Resume Analysis. ADD the extracted keywords into an appropriate category while keeping the original categories intact. If a fitting category exists, use it; otherwise create a new, specific, related category name.
+4) BAN generic category names such as "Additional", "Other", or "Miscellaneous". Always use clear, domain-specific categories.
 6) USE industry-standard terminology (normalize aliases to canonical names where appropriate), and DEDUPLICATE within categories.
 7) DO NOT remove any original skills or categories. Only add.
 
