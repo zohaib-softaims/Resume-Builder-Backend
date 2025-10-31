@@ -9,6 +9,6 @@ import { validate } from "../middleware/validator.js";
 const router = Router();
 
 router.post("/parse", requireAuth, upload.single("resume"), resumeFileValidator, parseResume);
-router.post("/optimize", validate(optimizeResumeSchema), optimizeResume);
+router.post("/optimize", requireAuth, validate(optimizeResumeSchema), optimizeResume);
 
 export default router;
