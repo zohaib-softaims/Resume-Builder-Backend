@@ -74,6 +74,16 @@ export const optimizeResume = catchAsync(async (req, res) => {
       message: "Resume not found",
     });
   }
+  if (resume) {
+    return res.status(200).json({
+      success: true,
+      message: "Resume optimized and PDF generated successfully",
+      data: {
+        resume_id,
+        pdf_url: resume.optimized_resumeUrl,
+      },
+    });
+  }
 
   const { resume_text, resume_analysis } = resume;
   const parsedAnalysis = JSON.parse(resume_analysis);
