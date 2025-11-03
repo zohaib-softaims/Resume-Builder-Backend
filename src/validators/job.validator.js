@@ -18,3 +18,14 @@ export const scrapJobSchema = z.object({
   job_url: jobUrlSchema,
   resume_id: resumeIdSchema.optional(),
 });
+
+const jobIdSchema = z
+  .string({
+    required_error: "job_id is required",
+    invalid_type_error: "job_id must be a string",
+  })
+  .min(1, "job_id cannot be empty");
+
+export const optimizeJobResumeSchema = z.object({
+  job_id: jobIdSchema,
+});

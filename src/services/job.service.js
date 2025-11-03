@@ -12,3 +12,9 @@ export const createJob = async (resume_id, job_url, job_description, job_gap_ana
 
   return job;
 };
+
+export const getJobById = async (job_id) => {
+  return prisma.job.findUnique({
+    where: { id: job_id },
+  });
+};
