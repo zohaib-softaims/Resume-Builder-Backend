@@ -50,9 +50,18 @@ export const parseResume = catchAsync(async (req, res) => {
 
   // The response is guaranteed to be valid JSON matching the schema
   const parsedAnalysis = JSON.parse(analysis);
+
+  // Extract score fields from analysis
+  const resumeAnalysisScore = {
+    overall_resume_score: parsedAnalysis?.overall_resume_score || null,
+    ats_compatibility: parsedAnalysis?.ats_compatibility || null,
+    keyword_optimization: parsedAnalysis?.keyword_optimization || null,
+    achievement_focus: parsedAnalysis?.achievement_focus || null,
+  };
+
   const uploadResult = await s3Uploader(req.file);
   const uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
-  const response = await createResume(req.auth.userId, resumeText, uploadedResumeUrl, analysis);
+  const response = await createResume(req.auth.userId, resumeText, uploadedResumeUrl, analysis, resumeAnalysisScore);
 
   res.status(200).json({
     success: true,

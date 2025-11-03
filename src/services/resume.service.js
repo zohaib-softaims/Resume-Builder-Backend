@@ -1,12 +1,13 @@
 import prisma from "../lib/prisma.js";
 
-export const createResume = async (user_id, resume_text, resume_fileUrl, resume_analysis) => {
+export const createResume = async (user_id, resume_text, resume_fileUrl, resume_analysis, resume_analysis_score = null) => {
   const resume = await prisma.resume.create({
     data: {
       user_id,
       resume_text,
       resume_fileUrl,
       resume_analysis,
+      resume_analysis_score,
     },
   });
 
