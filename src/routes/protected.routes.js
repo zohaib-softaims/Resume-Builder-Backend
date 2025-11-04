@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/profile", requireAuth, (req, res) => {
-  // req.auth.userId contains the Clerk user ID
+  // req.auth().userId contains the Clerk user ID
   res.json({
     success: true,
     userId: req.auth.userId,

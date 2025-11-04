@@ -36,8 +36,8 @@ export const errorHandler = (err, req, res, next) => {
     method: req.method,
     path: req.path,
     ip: req.ip,
-    userAgent: req.get('user-agent'),
-    userId: req.auth?.userId || 'anonymous',
+    userAgent: req.get("user-agent"),
+    userId: req.auth?.userId || "anonymous",
   });
 
   res.status(statusCode).json({
