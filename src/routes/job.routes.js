@@ -6,7 +6,7 @@ import { validate } from "../middleware/validator.js";
 
 const router = Router();
 
-router.post("/scrap-job", validate(scrapJobSchema), scrapJob);
-router.post("/optimize", validate(optimizeJobResumeSchema), optimizeJobResume);
+router.post("/scrap-job", requireAuth, validate(scrapJobSchema), scrapJob);
+router.post("/optimize", requireAuth, validate(optimizeJobResumeSchema), optimizeJobResume);
 
 export default router;

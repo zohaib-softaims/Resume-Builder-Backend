@@ -1,0 +1,47 @@
+2025-11-04 14:45:40 [INFO]: Job scraping started {
+  "job_url": "www.linkedin.com/jobs/view/4259182341/",
+  "resume_id": "cmhd7omrh0001mmuh34e2x5qg",
+  "userId": "user_34jYMUY6A4AWtscZ510Uxdd2QLs",
+  "isLinkedIn": true,
+  "urlLength": 38,
+  "urlTrimmed": "www.linkedin.com/jobs/view/4259182341/"
+}
+2025-11-04 14:45:40 [INFO]: LinkedIn URL detection {
+  "job_url": "www.linkedin.com/jobs/view/4259182341/",
+  "jobId": "4259182341",
+  "isLinkedIn": true
+}
+2025-11-04 14:46:53 [INFO]: Job scraping started {
+  "job_url": "https://www.linkedin.com/jobs/view/4259182341/",
+  "resume_id": "cmhd7omrh0001mmuh34e2x5qg",
+  "userId": "user_34jYMUY6A4AWtscZ510Uxdd2QLs",
+  "isLinkedIn": true,
+  "urlLength": 46,
+  "urlTrimmed": "https://www.linkedin.com/jobs/view/4259182341/"
+}
+2025-11-04 14:46:53 [INFO]: LinkedIn URL detection {
+  "job_url": "https://www.linkedin.com/jobs/view/4259182341/",
+  "jobId": "4259182341",
+  "isLinkedIn": true
+}
+2025-11-04 14:47:37 [INFO]: Job scraping started {
+  "job_url": "linkedin.com/jobs/view/4259182341/",
+  "resume_id": "cmhd7omrh0001mmuh34e2x5qg",
+  "userId": "user_34jYMUY6A4AWtscZ510Uxdd2QLs",
+  "isLinkedIn": true,
+  "urlLength": 34,
+  "urlTrimmed": "linkedin.com/jobs/view/4259182341/"
+}
+2025-11-04 14:47:37 [INFO]: LinkedIn URL detection {
+  "job_url": "linkedin.com/jobs/view/4259182341/",
+  "jobId": "4259182341",
+  "isLinkedIn": true
+}
+2025-11-04 14:48:11 [INFO]: Job scraping started {
+  "job_url": "https://pk.indeed.com/viewjob?jk=86a41ac6193c0973&from=shareddesktop_copy",
+  "resume_id": "cmhd7omrh0001mmuh34e2x5qg",
+  "userId": "user_34jYMUY6A4AWtscZ510Uxdd2QLs",
+  "isLinkedIn": false,
+  "urlLength": 73,
+  "urlTrimmed": "https://pk.indeed.com/viewjob?jk=86a41ac6193c0973&from=shareddesktop_copy"
+}

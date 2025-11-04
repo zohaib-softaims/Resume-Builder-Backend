@@ -41,7 +41,6 @@ ${resumeText}
    - Which skills, tools, certifications, or domain terms would significantly increase the resume’s visibility in ATS and recruiter searches.  
    - Don’t output arbitrary keyword lists — only relevant, contextually justified keywords that make the resume more competitive in real job searches.  
   
-
 `;
 };
 

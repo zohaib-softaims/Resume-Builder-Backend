@@ -11,6 +11,7 @@ import jobRoutes from "./routes/job.routes.js";
 import { errorHandler } from "./utils/error.js";
 import cookieParser from "cookie-parser";
 import { clerkMiddleware } from "@clerk/express";
+import logger from "./lib/logger.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -45,5 +46,5 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 9000;
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });

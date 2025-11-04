@@ -5,6 +5,7 @@ import { resumeAnalysisPrompt, resumeAnalysisSchema } from "../llmPrompts/resume
 import { getLLMResponse } from "../lib/llmConfig.js";
 import { s3Uploader } from "../utils/s3Uploader.js";
 import { createResume, getResumeById, updateResume, getResumesByUserId } from "../services/resume.service.js";
+import logger from "../lib/logger.js";
 import {
   getOptimizedSummaryPrompt,
   getOptimizedSkillsPrompt,
@@ -196,7 +197,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const achievementsAwardsWrapper = JSON.parse(achievementsAwardsJson);
   const certificationsWrapper = JSON.parse(certificationsJson);
 
-  console.log("Formatting each section into structured JSON...", projectsWrapper);
+  logger.debug("Formatting each section into structured JSON", { projectsCount: projectsWrapper.projects?.length || 0 });
   // Combine all sections into one resume JSON
   const resumeJson = {
     name: personalInfo.name || "",
@@ -216,15 +217,15 @@ export const optimizeResume = catchAsync(async (req, res) => {
   };
 
   // Generate HTML from the structured resume data
-  console.log("Generating HTML from resume data...");
+  logger.info("Generating HTML from resume data", { resume_id });
   const html = resumeHtmlTemplate(resumeJson);
 
   // Generate PDF from HTML
-  console.log("Generating PDF from HTML...");
+  logger.info("Generating PDF from HTML", { resume_id });
   const pdfBuffer = await generateResumePDF(resumeJson, resumeHtmlTemplate);
 
   // Upload PDF to AWS S3
-  console.log("Uploading PDF to AWS S3...");
+  logger.info("Uploading PDF to AWS S3", { resume_id, fileSize: pdfBuffer.length });
   const mockFile = {
     buffer: pdfBuffer,
     originalname: "optimized-resume.pdf",
@@ -235,18 +236,19 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const uploadResult = await s3Uploader(mockFile);
 
   if (!uploadResult.success) {
+    logger.error("Failed to upload PDF to AWS S3", { resume_id, error: "S3 upload failed" });
     return res.status(500).json({
       success: false,
       message: "Failed to upload PDF to AWS S3",
     });
   }
 
-  console.log("PDF uploaded to AWS S3 successfully:", uploadResult.url);
+  logger.info("PDF uploaded to AWS S3 successfully", { resume_id, url: uploadResult.url });
 
   // Update resume record with the optimized PDF URL
   await updateResume(resume_id, { optimized_resumeUrl: uploadResult.url });
 
-  console.log("Resume optimization and PDF generation completed successfully");
+  logger.info("Resume optimization and PDF generation completed successfully", { resume_id, pdfUrl: uploadResult.url });
 
   res.status(200).json({
     success: true,

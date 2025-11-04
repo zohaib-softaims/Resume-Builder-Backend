@@ -5,7 +5,16 @@ const jobUrlSchema = z
     required_error: "job_url is required",
     invalid_type_error: "job_url must be a string",
   })
-  .url("Please provide a valid URL");
+  .min(1, "job_url cannot be empty")
+  .refine(
+    (url) => {
+      // Allow URLs with or without protocol
+      // Valid: https://example.com, www.example.com, example.com
+      const urlPattern = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(\/[^\s]*)?$/;
+      return urlPattern.test(url);
+    },
+    { message: "Please provide a valid URL" }
+  );
 
 const resumeIdSchema = z
   .string({
