@@ -10,11 +10,21 @@ const s3 = new S3Client({
   },
 });
 
-export const s3Uploader = async (file) => {
+export const s3Uploader = async (file, customPath = null) => {
   try {
     console.log("s3 file is", file.originalname);
-    const fileExtension = path.extname(file.originalname);
-    const fileName = `${randomUUID()}${fileExtension}`;
+
+    let fileName;
+    if (customPath) {
+      // Use custom path if provided
+      fileName = customPath;
+    } else {
+      // Keep original filename first, then UUID for uniqueness
+      const originalName = path.parse(file.originalname).name; // filename without extension
+      const fileExtension = path.extname(file.originalname);
+      const uuid = randomUUID();
+      fileName = `${originalName}_${uuid}${fileExtension}`;
+    }
 
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,

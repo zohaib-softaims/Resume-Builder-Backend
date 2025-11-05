@@ -17,6 +17,7 @@ import { optimizeResume as optimizeResumeContent } from "../services/resumeOptim
 import logger from "../lib/logger.js";
 import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { generateResumePDF } from "../utils/pdfGenerator.js";
+import { extractOriginalFileName } from "../utils/fileUtils.js";
 
 export const parseResume = catchAsync(async (req, res) => {
   const dataBuffer = req.file.buffer;
@@ -152,12 +153,52 @@ export const getUserResumes = catchAsync(async (req, res) => {
 
   const resumes = await getResumesByUserId(user_id);
 
+  // Extract original filename from S3 URL
+  const resumesData = resumes.map((resume) => {
+    const originalResumeName = extractOriginalFileName(resume.resume_fileUrl);
+
+    return {
+      ...resume,
+      original_resume_name: originalResumeName,
+    };
+  });
+
   res.status(200).json({
     success: true,
     message: "Resumes fetched successfully",
     data: {
-      resumes,
-      count: resumes.length,
+      resumes: resumesData,
+      count: resumesData.length,
+    },
+  });
+});
+
+export const getResume = catchAsync(async (req, res) => {
+  const { resume_id } = req.params;
+
+  logger.info("Fetching resume details", { resume_id });
+
+  const resume = await getResumeById(resume_id);
+
+  if (!resume) {
+    throw new AppError(404, "Resume not found");
+  }
+
+  // Parse resume analysis from JSON
+  const parsedAnalysis = JSON.parse(resume.resume_analysis);
+
+  return res.status(200).json({
+    success: true,
+    message: "Resume details fetched successfully",
+    data: {
+      resume_id: resume.id,
+      user_id: resume.user_id,
+      resume_analysis: parsedAnalysis,
+      resume_analysis_score: resume.resume_analysis_score,
+      original_resume_url: resume.resume_fileUrl,
+      optimized_resume_url: resume.optimized_resumeUrl,
+      created_at: resume.createdAt,
+      updated_at: resume.updatedAt,
     },
   });
 });

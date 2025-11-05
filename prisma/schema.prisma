@@ -39,15 +39,17 @@ model Resume {
 }
 
 model Job {
-  id                String   @id @default(cuid())
-  resume_id         String
-  job_url           String
-  job_description   String
-  job_gap_analysis  Json
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  resume            Resume   @relation(fields: [resume_id], references: [id], onDelete: Cascade)
-
+  id                       String   @id @default(cuid())
+  resume_id                String
+  job_url                  String
+  job_title                String?
+  job_description          String
+  job_gap_analysis         Json
+  job_analysis_score       Json?
+  optimized_resumeUrl      String?
+  cover_letterUrl          String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  resume                   Resume   @relation(fields: [resume_id], references: [id], onDelete: Cascade)
   @@map("jobs")
 }
-

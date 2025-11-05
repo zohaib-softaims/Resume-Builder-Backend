@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { upload } from "../utils/multer.js";
-import { parseResume, optimizeResume, getUserResumes } from "../controllers/resume.controller.js";
+import { parseResume, optimizeResume, getUserResumes, getResume } from "../controllers/resume.controller.js";
 import { resumeFileValidator } from "../validators/resumeFile.validator.js";
 import { optimizeResumeSchema } from "../validators/resume.validator.js";
 import { validate } from "../middleware/validator.js";
@@ -11,5 +11,6 @@ const router = Router();
 router.post("/parse", requireAuth, upload.single("resume"), resumeFileValidator, parseResume);
 router.post("/optimize", requireAuth, validate(optimizeResumeSchema), optimizeResume);
 router.get("/", requireAuth, getUserResumes);
+router.get("/:resume_id", requireAuth, getResume);
 
 export default router;

@@ -114,7 +114,8 @@ scripts/             # Test and utility scripts
 **CRITICAL**: DO NOT run bash commands unless explicitly asked by the user
 
 Never run without permission:
-- `npm install` / `npm start` / `npm test`
+- `npm install` / `npm start` / `npm test` / `npm run dev`
+- **NEVER START THE SERVER** - The server runs on port 9000 and should only be started by the user
 - Database migrations or seeds
 - Any deployment commands
 - Git push operations

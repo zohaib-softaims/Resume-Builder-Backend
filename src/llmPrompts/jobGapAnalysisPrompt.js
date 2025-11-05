@@ -22,6 +22,8 @@ ${jobDescription}
 
 **Evaluation Dimensions**:
 
+0. **Job Title**: Extract the exact job title from the job description. This should be the primary position title mentioned in the job posting (e.g., "Senior Software Engineer", "Full Stack Developer", "Marketing Manager", etc.).
+
 1. **Overall Match Rate (in percentage)**: Evaluate the overall compatibility between the resume and job description based on skills, experience, qualifications, and alignment with job requirements.
 
 2. **Searchability Analysis**: 
@@ -113,6 +115,9 @@ ${jobDescription}
 export const jobGapAnalysisSchema = {
   type: "object",
   properties: {
+    job_title: {
+      type: "string",
+    },
     overall_match_rate: {
       type: "string",
       pattern: "^\\d+%$",
@@ -189,6 +194,6 @@ export const jobGapAnalysisSchema = {
       additionalProperties: false,
     },
   },
-  required: ["overall_match_rate", "searchability", "skills", "pros_and_cons", "recruiter_tips", "formatting"],
+  required: ["job_title", "overall_match_rate", "searchability", "skills", "pros_and_cons", "recruiter_tips", "formatting"],
   additionalProperties: false,
 };

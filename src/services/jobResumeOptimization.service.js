@@ -35,6 +35,7 @@ import logger from "../lib/logger.js";
  * @param {string} resumeId - Resume ID for logging context
  * @returns {Promise<object>} Structured resume JSON object
  */
+
 export const optimizeResumeForJob = async (
   resumeText,
   jobDescription,

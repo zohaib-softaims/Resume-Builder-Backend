@@ -19,6 +19,7 @@
     "@langchain/langgraph": "^0.3.8",
     "@langchain/openai": "^0.5.18",
     "@prisma/client": "^6.9.0",
+    "@qnaplus/node-curl-impersonate": "^1.0.2",
     "axios": "^1.13.0",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
