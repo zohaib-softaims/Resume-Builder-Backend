@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import { convert } from 'html-to-text';
-import { sanitizedText } from '../utils/sanitizedText.js';
+import { sanitizedText } from '../src/utils/sanitizedText.js';
 
 export const scrapeJobFromWeb = async (jobUrl) => {
   let browser;

@@ -65,13 +65,18 @@ export const optimizeResume = async (resumeText, parsedAnalysis, resumeId) => {
       model: "gpt-4o-2024-08-06",
     }),
     getLLMResponse({
-      systemPrompt: getOptimizedAchievementsAwardsPrompt(resumeText, parsedAnalysis),
+      systemPrompt: getOptimizedAchievementsAwardsPrompt(
+        resumeText,
+        parsedAnalysis
+      ),
       messages: [],
       model: "gpt-4o-2024-08-06",
     }),
   ]);
 
-  logger.debug("Formatting each section into structured JSON", { resume_id: resumeId });
+  logger.debug("Formatting each section into structured JSON", {
+    resume_id: resumeId,
+  });
 
   const [
     personalInfoJson,
@@ -142,14 +147,15 @@ export const optimizeResume = async (resumeText, parsedAnalysis, resumeId) => {
   ]);
 
   // Parse all JSON responses and unwrap arrays from wrapper objects
-  const personalInfo = JSON.parse(personalInfoJson);
-  const summaryWrapper = JSON.parse(summaryJson);
-  const skillsWrapper = JSON.parse(skillsJson);
-  const experienceWrapper = JSON.parse(experienceJson);
-  const projectsWrapper = JSON.parse(projectsJson);
-  const educationWrapper = JSON.parse(educationJson);
-  const achievementsAwardsWrapper = JSON.parse(achievementsAwardsJson);
-  const certificationsWrapper = JSON.parse(certificationsJson);
+  // Add null checks to prevent parsing errors when LLM returns null
+  const personalInfo = personalInfoJson ? JSON.parse(personalInfoJson) : {};
+  const summaryWrapper = summaryJson ? JSON.parse(summaryJson) : {};
+  const skillsWrapper = skillsJson ? JSON.parse(skillsJson) : {};
+  const experienceWrapper = experienceJson ? JSON.parse(experienceJson) : {};
+  const projectsWrapper = projectsJson ? JSON.parse(projectsJson) : {};
+  const educationWrapper = educationJson ? JSON.parse(educationJson) : {};
+  const achievementsAwardsWrapper = achievementsAwardsJson ? JSON.parse(achievementsAwardsJson) : {};
+  const certificationsWrapper = certificationsJson ? JSON.parse(certificationsJson) : {};
 
   // Combine all sections into one resume JSON
   const resumeJson = {

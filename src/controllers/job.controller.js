@@ -1,6 +1,6 @@
 import { catchAsync, AppError } from "../utils/error.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
-import { scrapeJobFromWeb } from "../services/jobWebScraper.service.js";
+import { scrapeJobWithScrapfly } from "../services/scrapeflyWebScraper.service.js";
 import { fetchJobFromLinkedInApi } from "../services/jobApiClient.service.js";
 import { isLinkedInJobUrl, extractLinkedInJobId } from "../utils/jobUtils.js";
 import { jobDescriptionPrompt } from "../llmPrompts/jobDescriptionPrompt.js";
@@ -40,7 +40,26 @@ export const scrapJob = catchAsync(async (req, res) => {
     }
     jobDescription = await fetchJobFromLinkedInApi(jobId);
   } else {
-    const jobText = await scrapeJobFromWeb(job_url);
+    logger.info("Scraping non-LinkedIn job with Scrapefly", { job_url });
+
+    const jobText = await scrapeJobWithScrapfly(job_url, {
+      renderJs: true,
+      asp: true,
+      proxyPool: "public_datacenter_pool",
+    });
+
+    if (!jobText || jobText.trim().length === 0) {
+      logger.error("Failed to scrape job - empty content received", {
+        job_url,
+      });
+      throw new AppError(500, "Failed to scrape job posting.");
+    }
+
+    logger.info("Successfully scraped job with Scrapefly", {
+      job_url,
+      textLength: jobText.length,
+    });
+
     const jobDescPrompt = jobDescriptionPrompt(jobText);
     jobDescription = await getLLMResponse({
       systemPrompt: jobDescPrompt,
@@ -64,7 +83,7 @@ export const scrapJob = catchAsync(async (req, res) => {
     responseSchema: jobGapAnalysisSchema,
     schemaName: "job_gap_analysis",
   });
-  const parsedGapAnalysis = JSON.parse(gapAnalysis);
+  const parsedGapAnalysis = gapAnalysis ? JSON.parse(gapAnalysis) : {};
 
   // Extract job title from gap analysis
   const jobTitle = parsedGapAnalysis.job_title || null;
@@ -72,7 +91,8 @@ export const scrapJob = catchAsync(async (req, res) => {
   // Extract job analysis scores from gap analysis
   const jobAnalysisScore = {
     overall_match_rate: parsedGapAnalysis?.overall_match_rate || null,
-    searchability_issues: parsedGapAnalysis?.searchability?.weak_points?.length || 0,
+    searchability_issues:
+      parsedGapAnalysis?.searchability?.weak_points?.length || 0,
     formatting_issues: parsedGapAnalysis?.formatting?.bad_points?.length || 0,
     missing_skills: parsedGapAnalysis?.skills?.missing_skills?.length || 0,
     recruiter_tips_count: parsedGapAnalysis?.recruiter_tips?.length || 0,
@@ -82,7 +102,14 @@ export const scrapJob = catchAsync(async (req, res) => {
   const { job_title, ...gapAnalysisWithoutTitle } = parsedGapAnalysis;
 
   // Create job record with gap analysis excluding job_title
-  const job = await createJob(resume_id, job_url, jobTitle, jobDescription, JSON.stringify(gapAnalysisWithoutTitle), jobAnalysisScore);
+  const job = await createJob(
+    resume_id,
+    job_url,
+    jobTitle,
+    jobDescription,
+    JSON.stringify(gapAnalysisWithoutTitle),
+    jobAnalysisScore
+  );
 
   return res.status(200).json({
     success: true,
@@ -130,7 +157,7 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
   }
 
   const { job_description, job_gap_analysis, resume_id } = job;
-  const parsedGapAnalysis = JSON.parse(job_gap_analysis);
+  const parsedGapAnalysis = job_gap_analysis ? JSON.parse(job_gap_analysis) : {};
 
   // Fetch resume from database
   const resume = await getResumeById(resume_id);
@@ -257,7 +284,7 @@ export const getJob = catchAsync(async (req, res) => {
   }
 
   // Parse gap analysis from JSON
-  const parsedGapAnalysis = JSON.parse(job.job_gap_analysis);
+  const parsedGapAnalysis = job.job_gap_analysis ? JSON.parse(job.job_gap_analysis) : {};
 
   return res.status(200).json({
     success: true,

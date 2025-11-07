@@ -22,7 +22,7 @@ export const generateCoverLetterForJob = async (
       schemaName: "cover_letter",
     });
 
-    const coverLetterJson = JSON.parse(coverLetterResponse);
+    const coverLetterJson = coverLetterResponse ? JSON.parse(coverLetterResponse) : {};
 
     logger.info("Cover letter generated successfully", {
       job_id,

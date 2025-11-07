@@ -35,7 +35,7 @@ export const parseResume = catchAsync(async (req, res) => {
   });
 
   // The response is guaranteed to be valid JSON matching the schema
-  const parsedAnalysis = JSON.parse(analysis);
+  const parsedAnalysis = analysis ? JSON.parse(analysis) : {};
 
   // Extract score fields from analysis
   const resumeAnalysisScore = {
@@ -89,7 +89,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
   }
 
   const { resume_text, resume_analysis } = resume;
-  const parsedAnalysis = JSON.parse(resume_analysis);
+  const parsedAnalysis = resume_analysis ? JSON.parse(resume_analysis) : {};
 
   // Optimize resume content using service
   const resumeJson = await optimizeResumeContent(
@@ -185,7 +185,7 @@ export const getResume = catchAsync(async (req, res) => {
   }
 
   // Parse resume analysis from JSON
-  const parsedAnalysis = JSON.parse(resume.resume_analysis);
+  const parsedAnalysis = resume.resume_analysis ? JSON.parse(resume.resume_analysis) : {};
 
   return res.status(200).json({
     success: true,
