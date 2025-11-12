@@ -243,8 +243,8 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
     throw new AppError(500, "Failed to upload cover letter PDF to AWS S3");
   }
 
-  // Update job record with PDF URLs
-  await updateJob(job_id, resumeUploadResult.url, coverLetterUploadResult.url);
+  // Update job record with PDF URLs and store the resume JSON
+  await updateJob(job_id, resumeUploadResult.url, coverLetterUploadResult.url, resumeJson);
 
   logger.info(
     "Job-based resume optimization and cover letter generation completed successfully",
@@ -333,6 +333,246 @@ export const getUserJobs = catchAsync(async (req, res) => {
     data: {
       jobs: jobsData,
       count: jobsData.length,
+    },
+  });
+});
+
+export const getResumeComparisonJson = catchAsync(async (req, res) => {
+  const { job_id } = req.body;
+
+  logger.info("Starting resume comparison JSON generation", { job_id });
+
+  // Fetch job from database
+  const job = await getJobById(job_id);
+
+  if (!job) {
+    throw new AppError(404, "Job not found");
+  }
+
+  const { job_description, job_gap_analysis, resume_id } = job;
+  const parsedGapAnalysis = job_gap_analysis ? JSON.parse(job_gap_analysis) : {};
+
+  // Fetch resume from database
+  const resume = await getResumeById(resume_id);
+
+  if (!resume) {
+    throw new AppError(404, "Resume not found");
+  }
+
+  const { resume_text, resume_json } = resume;
+
+  // Use resume_json field which already contains the JSON data
+  const originalResumeJson = resume_json;
+
+  logger.info("Optimizing resume content for job", { job_id, resume_id });
+
+  // Optimize resume for job using service (same as optimizeJobResume)
+  const optimizedResumeJson = await optimizeResumeForJob(
+    resume_text,
+    job_description,
+    parsedGapAnalysis,
+    job_id,
+    resume_id
+  );
+
+  logger.info("Resume optimization completed, returning response immediately", {
+    job_id,
+    resume_id,
+  });
+
+  // Return response immediately - cover letter generation happens in background
+  res.status(200).json({
+    success: true,
+    message: "Resume comparison data generated successfully",
+    data: {
+      job_id,
+      resume_id,
+      original_resume_json: originalResumeJson,
+      optimized_resume_json: optimizedResumeJson,
+    },
+  });
+
+  // Generate cover letter in background (non-blocking)
+  (async () => {
+    try {
+      logger.info("Starting background cover letter generation", { job_id, resume_id });
+
+      // Generate cover letter content from optimized resume
+      const coverLetterJson = await generateCoverLetterForJob(
+        optimizedResumeJson,
+        job_description,
+        job_id,
+        resume_id
+      );
+
+      logger.info("Generating cover letter PDF in background", { job_id, resume_id });
+
+      // Generate cover letter PDF
+      const coverLetterHtml = coverLetterHtmlTemplate(coverLetterJson, optimizedResumeJson);
+      const coverLetterPdfBuffer = await generatePDFFromHtml(coverLetterHtml);
+
+      logger.info("Uploading cover letter PDF to AWS S3 in background", {
+        job_id,
+        resume_id,
+        coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(2)} KB`,
+      });
+
+      // Upload cover letter PDF to AWS S3
+      const coverLetterUploadResult = await s3Uploader({
+        buffer: coverLetterPdfBuffer,
+        originalname: "job-cover-letter.pdf",
+        mimetype: "application/pdf",
+        size: coverLetterPdfBuffer.length,
+      });
+
+      if (!coverLetterUploadResult.success) {
+        logger.error("Failed to upload cover letter PDF to AWS S3 in background", {
+          job_id,
+          resume_id,
+          error: coverLetterUploadResult.error || "S3 upload failed",
+        });
+        return;
+      }
+
+      // Update job record with optimized resume JSON and cover letter URL (no resume PDF yet)
+      await updateJob(job_id, null, coverLetterUploadResult.url, optimizedResumeJson);
+
+      logger.info("Background cover letter generation completed successfully", {
+        job_id,
+        resume_id,
+        coverLetterUrl: coverLetterUploadResult.url,
+        coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(2)} KB`,
+      });
+    } catch (error) {
+      logger.error("Error in background cover letter generation", {
+        job_id,
+        resume_id,
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  })();
+});
+
+export const generateResumeFromJson = catchAsync(async (req, res) => {
+  const { job_id, resume_json } = req.body;
+
+  logger.info("Starting resume generation from JSON", { job_id });
+
+  // Fetch job from database
+  const job = await getJobById(job_id);
+
+  if (!job) {
+    throw new AppError(404, "Job not found");
+  }
+
+  const { job_description } = job;
+
+  logger.info("Generating resume PDF from provided JSON", {
+    job_id,
+    resume_id: job.resume_id,
+  });
+
+  // Generate resume PDF
+  const resumePdfBuffer = await generateResumePDF(resume_json, resumeHtmlTemplate);
+
+  // Check if cover letter exists, if not generate it
+  let coverLetterUrl = job.cover_letterUrl;
+
+  if (!coverLetterUrl) {
+    logger.info("Cover letter not found, generating new cover letter", {
+      job_id,
+      resume_id: job.resume_id,
+    });
+
+    // Generate cover letter content from the provided resume JSON
+    const coverLetterJson = await generateCoverLetterForJob(
+      resume_json,
+      job_description,
+      job_id,
+      job.resume_id
+    );
+
+    // Generate cover letter PDF
+    const coverLetterHtml = coverLetterHtmlTemplate(coverLetterJson, resume_json);
+    const coverLetterPdfBuffer = await generatePDFFromHtml(coverLetterHtml);
+
+    logger.info("Uploading cover letter PDF to AWS S3", {
+      job_id,
+      resume_id: job.resume_id,
+      coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(2)} KB`,
+    });
+
+    // Upload cover letter PDF to AWS S3
+    const coverLetterUploadResult = await s3Uploader({
+      buffer: coverLetterPdfBuffer,
+      originalname: "job-cover-letter.pdf",
+      mimetype: "application/pdf",
+      size: coverLetterPdfBuffer.length,
+    });
+
+    if (!coverLetterUploadResult.success) {
+      logger.error("Failed to upload cover letter PDF to AWS S3", {
+        job_id,
+        resume_id: job.resume_id,
+        error: coverLetterUploadResult.error || "S3 upload failed",
+      });
+      throw new AppError(500, "Failed to upload cover letter PDF to AWS S3");
+    }
+
+    coverLetterUrl = coverLetterUploadResult.url;
+  }
+
+  logger.info("Uploading resume PDF to AWS S3", {
+    job_id,
+    resume_id: job.resume_id,
+    resumePdfSize: `${(resumePdfBuffer.length / 1024).toFixed(2)} KB`,
+  });
+
+  // Upload resume PDF to AWS S3
+  const resumeUploadResult = await s3Uploader({
+    buffer: resumePdfBuffer,
+    originalname: "job-optimized-resume.pdf",
+    mimetype: "application/pdf",
+    size: resumePdfBuffer.length,
+  });
+
+  if (!resumeUploadResult.success) {
+    logger.error("Failed to upload resume PDF to AWS S3", {
+      job_id,
+      resume_id: job.resume_id,
+      error: resumeUploadResult.error || "S3 upload failed",
+    });
+    throw new AppError(500, "Failed to upload resume PDF to AWS S3");
+  }
+
+  // Update job record with new resume PDF URL, cover letter URL, and store the resume JSON
+  await updateJob(
+    job_id,
+    resumeUploadResult.url,
+    coverLetterUrl,
+    resume_json
+  );
+
+  logger.info(
+    "Resume generation from JSON completed successfully",
+    {
+      job_id,
+      resume_id: job.resume_id,
+      resumePdfUrl: resumeUploadResult.url,
+      coverLetterPdfUrl: coverLetterUrl,
+      resumePdfSize: `${(resumePdfBuffer.length / 1024).toFixed(2)} KB`,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Resume generated successfully from JSON",
+    data: {
+      job_id,
+      resume_id: job.resume_id,
+      optimized_resume_url: resumeUploadResult.url,
+      cover_letter_url: coverLetterUrl,
     },
   });
 });

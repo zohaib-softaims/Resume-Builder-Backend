@@ -38,3 +38,23 @@ const jobIdSchema = z
 export const optimizeJobResumeSchema = z.object({
   job_id: jobIdSchema,
 });
+
+export const generateResumeFromJsonSchema = z.object({
+  job_id: jobIdSchema,
+  resume_json: z.object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+    linkedin: z.string().optional(),
+    location: z.string().optional(),
+    summary: z.string().optional(),
+    skills: z.array(z.any()).optional(),
+    experience: z.array(z.any()).optional(),
+    education: z.array(z.any()).optional(),
+    certifications: z.array(z.any()).optional(),
+    projects: z.array(z.any()).optional(),
+    achievements: z.array(z.any()).optional(),
+    awards: z.array(z.any()).optional(),
+    interests: z.array(z.any()).optional(),
+  }).passthrough(),
+});

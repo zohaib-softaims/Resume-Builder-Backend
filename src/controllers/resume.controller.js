@@ -14,6 +14,7 @@ import {
   getResumesByUserId,
 } from "../services/resume.service.js";
 import { optimizeResume as optimizeResumeContent } from "../services/resumeOptimization.service.js";
+import { convertResumeTextToJson } from "../services/resumeTextToJson.service.js";
 import logger from "../lib/logger.js";
 import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { generateResumePDF } from "../utils/pdfGenerator.js";
@@ -54,6 +55,28 @@ export const parseResume = catchAsync(async (req, res) => {
     analysis,
     resumeAnalysisScore
   );
+
+  // Background JSON conversion - fire and forget (non-blocking)
+  const resumeId = response.id;
+  convertResumeTextToJson(resumeText)
+    .then((resumeJson) => {
+      if (resumeJson) {
+        logger.info("Background JSON conversion completed successfully", {
+          resume_id: resumeId,
+        });
+        return updateResume(resumeId, { resume_json: resumeJson });
+      } else {
+        logger.warn("Background JSON conversion returned null", {
+          resume_id: resumeId,
+        });
+      }
+    })
+    .catch((error) => {
+      logger.error("Background JSON conversion failed", {
+        resume_id: resumeId,
+        error: error.message,
+      });
+    });
 
   res.status(200).json({
     success: true,

@@ -38,14 +38,21 @@ export const getJobById = async (job_id) => {
 export const updateJob = async (
   job_id,
   optimized_resumeUrl,
-  cover_letterUrl
+  cover_letterUrl,
+  optimized_resume_json = null
 ) => {
+  const updateData = {
+    optimized_resumeUrl,
+    cover_letterUrl,
+  };
+
+  if (optimized_resume_json !== null) {
+    updateData.optimized_resume_json = optimized_resume_json;
+  }
+
   return prisma.job.update({
     where: { id: job_id },
-    data: {
-      optimized_resumeUrl,
-      cover_letterUrl,
-    },
+    data: updateData,
   });
 };
 

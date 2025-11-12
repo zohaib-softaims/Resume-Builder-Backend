@@ -29,6 +29,7 @@ model Resume {
   resume_fileUrl       String?
   resume_analysis      Json
   resume_analysis_score Json?
+  resume_json          Json?
   optimized_resumeUrl  String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
@@ -47,6 +48,7 @@ model Job {
   job_gap_analysis         Json
   job_analysis_score       Json?
   optimized_resumeUrl      String?
+  optimized_resume_json    Json?
   cover_letterUrl          String?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
