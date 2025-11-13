@@ -27,9 +27,6 @@ export async function getLLMResponse({ systemPrompt, messages, model = "gpt-4o-2
 
     const response = await openai.chat.completions.create(requestConfig);
 
-    console.log("Prompt tokens:", response.usage.prompt_tokens);
-    console.log("Completion tokens:", response.usage.completion_tokens);
-    console.log("Total tokens:", response.usage.total_tokens);
     return response.choices[0].message.content;
   } catch (error) {
     console.error("LLM Error:", error);

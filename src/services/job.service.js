@@ -10,12 +10,16 @@ export const createJob = async (
 ) => {
   const job = await prisma.job.create({
     data: {
-      resume_id,
       job_url,
       job_title,
       job_description,
       job_gap_analysis,
       job_analysis_score,
+      resume: {
+        connect: {
+          id: resume_id,
+        },
+      },
     },
   });
 

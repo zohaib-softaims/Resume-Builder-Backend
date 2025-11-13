@@ -28,44 +28,55 @@ import { generateCoverLetterForJob } from "../services/coverLetterGeneration.ser
 import logger from "../lib/logger.js";
 
 export const scrapJob = catchAsync(async (req, res) => {
-  const { job_url, resume_id } = req.body;
+  const { job_url, job_description, resume_id } = req.body;
 
-  // Fetch job description
+  // Fetch or use provided job description
   let jobDescription;
 
-  if (isLinkedInJobUrl(job_url)) {
-    const jobId = extractLinkedInJobId(job_url);
-    if (!jobId) {
-      throw new AppError(400, "Invalid LinkedIn job URL format");
-    }
-    jobDescription = await fetchJobFromLinkedInApi(jobId);
-  } else {
-    logger.info("Scraping non-LinkedIn job with Scrapefly", { job_url });
-
-    const jobText = await scrapeJobWithScrapfly(job_url, {
-      renderJs: true,
-      asp: true,
-      proxyPool: "public_datacenter_pool",
+  if (job_description) {
+    // Use the provided job description directly
+    logger.info("Using provided job description", {
+      descriptionLength: job_description.length,
     });
+    jobDescription = job_description;
+  } else if (job_url) {
+    // Scrape job from URL
+    if (isLinkedInJobUrl(job_url)) {
+      const jobId = extractLinkedInJobId(job_url);
+      if (!jobId) {
+        throw new AppError(400, "Invalid LinkedIn job URL format");
+      }
+      jobDescription = await fetchJobFromLinkedInApi(jobId);
+    } else {
+      logger.info("Scraping non-LinkedIn job with Scrapefly", { job_url });
 
-    if (!jobText || jobText.trim().length === 0) {
-      logger.error("Failed to scrape job - empty content received", {
-        job_url,
+      const jobText = await scrapeJobWithScrapfly(job_url, {
+        renderJs: true,
+        asp: true,
+        proxyPool: "public_datacenter_pool",
       });
-      throw new AppError(500, "Failed to scrape job posting.");
+
+      if (!jobText || jobText.trim().length === 0) {
+        logger.error("Failed to scrape job - empty content received", {
+          job_url,
+        });
+        throw new AppError(500, "Failed to scrape job posting.");
+      }
+
+      logger.info("Successfully scraped job with Scrapefly", {
+        job_url,
+        textLength: jobText.length,
+      });
+
+      const jobDescPrompt = jobDescriptionPrompt(jobText);
+      jobDescription = await getLLMResponse({
+        systemPrompt: jobDescPrompt,
+        messages: [],
+        model: "gpt-4o-mini",
+      });
     }
-
-    logger.info("Successfully scraped job with Scrapefly", {
-      job_url,
-      textLength: jobText.length,
-    });
-
-    const jobDescPrompt = jobDescriptionPrompt(jobText);
-    jobDescription = await getLLMResponse({
-      systemPrompt: jobDescPrompt,
-      messages: [],
-      model: "gpt-4o-mini",
-    });
+  } else {
+    throw new AppError(400, "Either job_url or job_description must be provided");
   }
 
   // Fetch resume
@@ -104,7 +115,7 @@ export const scrapJob = catchAsync(async (req, res) => {
   // Create job record with gap analysis excluding job_title
   const job = await createJob(
     resume_id,
-    job_url,
+    job_url || null,
     jobTitle,
     jobDescription,
     JSON.stringify(gapAnalysisWithoutTitle),

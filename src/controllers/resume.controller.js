@@ -15,18 +15,68 @@ import {
 } from "../services/resume.service.js";
 import { optimizeResume as optimizeResumeContent } from "../services/resumeOptimization.service.js";
 import { convertResumeTextToJson } from "../services/resumeTextToJson.service.js";
+import { convertJsonToResumeText } from "../utils/jsonToResumeText.js";
 import logger from "../lib/logger.js";
 import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { generateResumePDF } from "../utils/pdfGenerator.js";
 import { extractOriginalFileName } from "../utils/fileUtils.js";
 
 export const parseResume = catchAsync(async (req, res) => {
-  const dataBuffer = req.file.buffer;
+  let resumeText = '';
+  let uploadedResumeUrl = null;
+  let resumeJson = null;
 
-  const parsed = await pdfParse(dataBuffer);
-  let resumeText = parsed.text;
-  resumeText = sanitizedText(resumeText);
+  // Handle JSON resume data (from form)
+  if (req.isJsonResume) {
+    logger.info("Processing JSON resume data from form");
 
+    // Store the JSON data directly
+    resumeJson = req.body;
+
+    // Convert JSON to text for LLM analysis
+    resumeText = convertJsonToResumeText(resumeJson);
+    resumeText = sanitizedText(resumeText);
+
+    logger.info("Generating PDF from JSON resume data");
+
+    // Generate PDF from JSON data (like optimize does)
+    const pdfBuffer = await generateResumePDF(resumeJson, resumeHtmlTemplate);
+
+    // Upload PDF to S3
+    const mockFile = {
+      buffer: pdfBuffer,
+      originalname: `${resumeJson.name || 'resume'}-form-created.pdf`,
+      mimetype: "application/pdf",
+      size: pdfBuffer.length,
+    };
+
+    const uploadResult = await s3Uploader(mockFile);
+
+    if (!uploadResult.success) {
+      logger.error("Failed to upload generated PDF to S3");
+      throw new AppError(500, "Failed to upload PDF to S3");
+    }
+
+    uploadedResumeUrl = uploadResult.url;
+    logger.info("PDF generated and uploaded successfully", { url: uploadedResumeUrl });
+
+  }
+  // Handle file upload (PDF/DOCX)
+  else if (req.isFileUpload) {
+    logger.info("Processing uploaded resume file");
+
+    const dataBuffer = req.file.buffer;
+    const parsed = await pdfParse(dataBuffer);
+    resumeText = parsed.text;
+    resumeText = sanitizedText(resumeText);
+
+    // Upload original file to S3
+    const uploadResult = await s3Uploader(req.file);
+    uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
+  }
+
+  // Analyze resume text using LLM (same for both file and JSON)
+  logger.info("Analyzing resume with LLM");
   const systemPrompt = resumeAnalysisPrompt(resumeText);
   let analysis = await getLLMResponse({
     systemPrompt,
@@ -46,37 +96,42 @@ export const parseResume = catchAsync(async (req, res) => {
     achievement_focus: parsedAnalysis?.achievement_focus || null,
   };
 
-  const uploadResult = await s3Uploader(req.file);
-  const uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
+  // Create resume record in database
   const response = await createResume(
     req.auth.userId,
     resumeText,
     uploadedResumeUrl,
     analysis,
-    resumeAnalysisScore
+    resumeAnalysisScore,
+    resumeJson // Pass JSON data if available (will be null for file uploads)
   );
 
-  // Background JSON conversion - fire and forget (non-blocking)
   const resumeId = response.id;
-  convertResumeTextToJson(resumeText)
-    .then((resumeJson) => {
-      if (resumeJson) {
-        logger.info("Background JSON conversion completed successfully", {
+
+  // If file was uploaded, convert to JSON in background
+  if (req.isFileUpload) {
+    convertResumeTextToJson(resumeText)
+      .then((convertedJson) => {
+        if (convertedJson) {
+          logger.info("Background JSON conversion completed successfully", {
+            resume_id: resumeId,
+          });
+          return updateResume(resumeId, { resume_json: convertedJson });
+        } else {
+          logger.warn("Background JSON conversion returned null", {
+            resume_id: resumeId,
+          });
+        }
+      })
+      .catch((error) => {
+        logger.error("Background JSON conversion failed", {
           resume_id: resumeId,
+          error: error.message,
         });
-        return updateResume(resumeId, { resume_json: resumeJson });
-      } else {
-        logger.warn("Background JSON conversion returned null", {
-          resume_id: resumeId,
-        });
-      }
-    })
-    .catch((error) => {
-      logger.error("Background JSON conversion failed", {
-        resume_id: resumeId,
-        error: error.message,
       });
-    });
+  }
+
+  logger.info("Resume processed successfully", { resume_id: resumeId });
 
   res.status(200).json({
     success: true,
@@ -84,6 +139,7 @@ export const parseResume = catchAsync(async (req, res) => {
     data: {
       resume_id: response.id,
       resume_analysis: parsedAnalysis,
+      resume_url: uploadedResumeUrl,
     },
   });
 });

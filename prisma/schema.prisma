@@ -40,9 +40,9 @@ model Resume {
 }
 
 model Job {
-  id                       String   @id @default(cuid())
+  id                       String          @id @default(cuid())
   resume_id                String
-  job_url                  String
+  job_url                  String?
   job_title                String?
   job_description          String
   job_gap_analysis         Json
@@ -50,8 +50,21 @@ model Job {
   optimized_resumeUrl      String?
   optimized_resume_json    Json?
   cover_letterUrl          String?
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
-  resume                   Resume   @relation(fields: [resume_id], references: [id], onDelete: Cascade)
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  resume                   Resume          @relation(fields: [resume_id], references: [id], onDelete: Cascade)
+  suggestions              JobSuggestion[]
   @@map("jobs")
+}
+
+model JobSuggestion {
+  id                      String   @id @default(cuid())
+  job_id                  String
+  suggestions             Json
+  accepted_suggestion_ids Json?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  job                     Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
+
+  @@map("job_suggestions")
 }

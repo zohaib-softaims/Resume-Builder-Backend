@@ -2,7 +2,6 @@ import { z } from "zod";
 
 const jobUrlSchema = z
   .string({
-    required_error: "job_url is required",
     invalid_type_error: "job_url must be a string",
   })
   .min(1, "job_url cannot be empty")
@@ -16,6 +15,12 @@ const jobUrlSchema = z
     { message: "Please provide a valid URL" }
   );
 
+const jobDescriptionSchema = z
+  .string({
+    invalid_type_error: "job_description must be a string",
+  })
+  .min(1, "job_description cannot be empty");
+
 const resumeIdSchema = z
   .string({
     required_error: "resume_id is required",
@@ -23,10 +28,19 @@ const resumeIdSchema = z
   })
   .min(1, "resume_id cannot be empty");
 
-export const scrapJobSchema = z.object({
-  job_url: jobUrlSchema,
-  resume_id: resumeIdSchema.optional(),
-});
+export const scrapJobSchema = z
+  .object({
+    job_url: jobUrlSchema.optional(),
+    job_description: jobDescriptionSchema.optional(),
+    resume_id: resumeIdSchema.optional(),
+  })
+  .refine(
+    (data) => data.job_url || data.job_description,
+    {
+      message: "Either job_url or job_description must be provided",
+      path: ["job_url"],
+    }
+  );
 
 const jobIdSchema = z
   .string({
@@ -57,4 +71,16 @@ export const generateResumeFromJsonSchema = z.object({
     awards: z.array(z.any()).optional(),
     interests: z.array(z.any()).optional(),
   }).passthrough(),
+});
+
+// Suggestion endpoints validators
+export const generateSuggestionsSchema = z.object({
+  job_id: jobIdSchema,
+});
+
+export const optimizeWithSuggestionsSchema = z.object({
+  job_id: jobIdSchema,
+  accepted_suggestion_ids: z
+    .array(z.string())
+    .min(1, "At least one suggestion ID must be provided"),
 });
