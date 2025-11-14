@@ -61,7 +61,7 @@ export const coverLetterHtmlTemplate = (coverLetterData, resumeJson) => {
 
     .date {
       font-size: 10pt;
-      margin-bottom: 30px;
+      margin-bottom: 15px;
       color: #555;
     }
 
@@ -80,7 +80,7 @@ export const coverLetterHtmlTemplate = (coverLetterData, resumeJson) => {
     }
 
     .signature-line {
-      margin-top: 50px;
+      margin-top: 8px;
       font-weight: 600;
     }
 

@@ -48,8 +48,9 @@ export const resumeAnalysisSchema = {
   type: "object",
   properties: {
     overall_resume_score: {
-      type: "string",
-      pattern: "^\\d+%$",
+      type: "number",
+      minimum: 0,
+      maximum: 100,
     },
     ats_compatibility: {
       type: "number",
@@ -96,6 +97,13 @@ export const resumeAnalysisSchema = {
       additionalProperties: false,
     },
   },
-  required: ["overall_resume_score", "ats_compatibility", "keyword_optimization", "achievement_focus", "resume_analysis", "keyword_analysis"],
+  required: [
+    "overall_resume_score",
+    "ats_compatibility",
+    "keyword_optimization",
+    "achievement_focus",
+    "resume_analysis",
+    "keyword_analysis",
+  ],
   additionalProperties: false,
 };

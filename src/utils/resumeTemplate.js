@@ -26,7 +26,7 @@ export function resumeHtmlTemplate(resume) {
 
       h2 {
         font-size: 17px;
-        margin-bottom: 6px;
+        margin-bottom: 2px;
         margin-top: 20px;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -35,8 +35,8 @@ export function resumeHtmlTemplate(resume) {
 
       hr {
         border: none;
-        border-top: 1px solid #aaa;
-        margin: 8px 0 16px 0;
+        border-top: 1px solid #333;
+        margin: 2px 0 12px 0;
       }
 
       .section {
@@ -323,13 +323,10 @@ export function resumeHtmlTemplate(resume) {
       ${resume.certifications
         .map(
           (cert) => `
-        <div class="cert-item">
-          <div class="cert-content">
-            <div class="cert-name">${cert.name}</div>
-            <div class="cert-issuer">${cert.issuer}</div>
-            ${cert.description_points?.length ? `<ul>${formatList(cert.description_points)}</ul>` : ""}
-          </div>
-          <div class="cert-year">${cert.year}</div>
+        <div class="entry">
+          <div class="subheading">${cert.name}${cert.year ? ` (${cert.year})` : ""}</div>
+          <div class="meta">${cert.issuer}</div>
+          ${cert.description_points?.length ? `<ul>${formatList(cert.description_points)}</ul>` : ""}
         </div>
       `
         )
@@ -347,13 +344,10 @@ export function resumeHtmlTemplate(resume) {
       ${resume.awards
         .map(
           (award) => `
-        <div class="award-item">
-          <div class="award-content">
-            <div class="award-title">${award.title}</div>
-            <div class="award-issuer">${award.issuer}</div>
-            ${award.description_points?.length ? `<ul>${formatList(award.description_points)}</ul>` : ""}
-          </div>
-          <div class="award-year">${award.year}</div>
+        <div class="entry">
+          <div class="subheading">${award.title}${award.year ? ` (${award.year})` : ""}</div>
+          <div class="meta">${award.issuer}</div>
+          ${award.description_points?.length ? `<ul>${formatList(award.description_points)}</ul>` : ""}
         </div>
       `
         )

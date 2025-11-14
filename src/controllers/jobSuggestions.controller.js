@@ -37,6 +37,27 @@ export const generateSuggestionsHandler = async (req, res) => {
   try {
     logger.info("Starting suggestion generation", { job_id });
 
+    // Check if suggestions already exist in the database
+    const existingSuggestions = await getSuggestionsByJobId(job_id);
+
+    if (existingSuggestions) {
+      logger.info("Suggestions already exist in database, returning cached version", {
+        job_id,
+      });
+
+      // Parse suggestions data
+      const suggestionsData =
+        typeof existingSuggestions.suggestions === "string"
+          ? JSON.parse(existingSuggestions.suggestions)
+          : existingSuggestions.suggestions;
+
+      return res.status(200).json({
+        success: true,
+        message: "Suggestions retrieved from cache",
+        data: suggestionsData,
+      });
+    }
+
     // Fetch job with resume and gap analysis
     const job = await prisma.job.findUnique({
       where: { id: job_id },
@@ -71,7 +92,8 @@ export const generateSuggestionsHandler = async (req, res) => {
     const responseString = await getLLMResponse({
       systemPrompt: generateSuggestionsPrompt(
         job.resume.resume_text,
-        gapAnalysis
+        gapAnalysis,
+        job.job_description
       ),
       messages: [],
       model: "gpt-4o-2024-08-06",
