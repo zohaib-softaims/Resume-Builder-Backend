@@ -52,10 +52,35 @@ ${JSON.stringify(resumeAnalysis, null, 2)}
 
 YOUR TASK:
 1) RETAIN all skills exactly as listed in the resume's existing Skills section, preserving their original category names and items.
-2) EXTRACT additional skills, tools, frameworks, and technologies explicitly mentioned anywhere else in the resume (Experience, Projects, Achievements) that are NOT already in the Skills section. ADD the extracted skills, tools, technologies, frameworks into an appropriate category while keeping the original categories intact. If a fitting category exists, use it; otherwise create a new, specific, related category name.
-3) Extract missing keywords from the Resume Analysis. ADD the extracted keywords into an appropriate category while keeping the original categories intact. If a fitting category exists, use it; otherwise create a new, specific, related category name.
-4) BAN generic category names such as "Additional", "Other", or "Miscellaneous". Always use clear, domain-specific categories.
+
+2) EXTRACT additional skills from Experience, Projects, and Achievements sections ONLY IF they meet ALL these criteria:
+   - It's a specific tool, software, language, framework, platform, or equipment with an official name
+   - It would appear in a job posting under "Required Skills" or "Technical Requirements"
+   - It's NOT already in the Skills section
+   - It's NOT any of these BANNED items:
+     ❌ Soft skills (Communication, Teamwork, Leadership, Problem-solving, Time management)
+     ❌ Personality traits (Detail-oriented, Self-motivated, Adaptable, Creative)
+     ❌ Certifications (AWS Certified, PMP, CPA, Six Sigma, Licensed Professional)
+     ❌ Job responsibilities (Project management, Customer service, Data analysis, Budgeting)
+     ❌ Buzzwords (Innovation, Strategic thinking, Best practices, Scalability, Optimization)
+     ❌ Generic concepts (Agile, Microservices, CI/CD, Cloud, APIs) - unless it's a specific tool
+     ❌ Job titles (Manager, Engineer, Analyst, Specialist)
+   
+   VALID examples to ADD: Python, React, Salesforce, Excel, AutoCAD, Photoshop, SQL, Docker, Tableau, Epic EMR, CNC Programming, Welding
+   INVALID examples to REJECT: "Team player", "AWS Certified", "Problem-solving", "Agile methodology", "Strong communication"
+
+3) Extract keywords from Resume Analysis ONLY IF:
+   - The keyword is a tangible tool/software/language/technology (not a concept or trait)
+   - The keyword actually appears in the resume text
+   - The keyword is NOT in the BANNED list above
+   - When in doubt, DO NOT ADD
+
+4) ADD extracted skills into an appropriate category. If a fitting category exists, use it; otherwise create a new, specific, domain-related category name.
+
+5) BAN generic category names such as "Additional", "Other", or "Miscellaneous". Always use clear, domain-specific categories.
+
 6) USE industry-standard terminology (normalize aliases to canonical names where appropriate), and DEDUPLICATE within categories.
+
 7) DO NOT remove any original skills or categories. Only add.
 
 CATEGORY MAPPING GUIDANCE (examples, not exhaustive):
@@ -328,7 +353,10 @@ Provide ONLY the rewritten Experience section in clean, properly formatted text.
 Generate the optimized Experience section now:`;
 };
 
-export const getOptimizedAchievementsAwardsPrompt = (resumeText, resumeAnalysis) => {
+export const getOptimizedAchievementsAwardsPrompt = (
+  resumeText,
+  resumeAnalysis
+) => {
   return `
 You are a professional resume writer. Optimize Achievements and Awards with precise conditional behavior.
 
@@ -347,6 +375,19 @@ STRICT BEHAVIOR:
 - If ONLY Achievements exist: generate ONLY Achievements.
 - If ONLY Awards exist: generate ONLY Awards.
 - If NEITHER exists: return an empty string (no content).
+
+SCOPE RESTRICTION (CRITICAL)
+You can ONLY work with items already listed under:
+- "Achievements" section
+- "Awards" or "Honors" section
+
+DO NOT extract or add content from:
+- Experience section
+- Projects section
+- Education section
+- Skills section
+- Any other resume section
+into achievement or award section 
 
 ENHANCEMENT RULES:
 1) Preserve all existing items; do not remove content.
