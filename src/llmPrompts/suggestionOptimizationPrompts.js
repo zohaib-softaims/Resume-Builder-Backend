@@ -23,14 +23,23 @@ ${currentSummary}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${
+        s.proposed
+      }`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Apply ALL the accepted suggestions above to optimize the summary while maintaining a professional tone and powerful impact.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. Maintain professional tone and executive-level impact
 3. Keep content concise (3-5 sentences typically)
 4. Preserve any information not mentioned in suggestions
@@ -126,14 +135,23 @@ ${currentSkills}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${
+        s.proposed
+      }`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Optimize the skills section by applying ALL the accepted suggestions above while maintaining logical organization and ATS compatibility.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. For "add" suggestions: integrate new skills into appropriate categories
 3. For "remove" suggestions: remove those specific skills
 4. For "enhance" suggestions: expand or modify as proposed
@@ -242,14 +260,23 @@ ${currentExperience}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. Field: ${s.target.field}\n   ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. Field: ${s.target.field}\n   ${s.preview}\n   Current: ${
+        s.target.current
+      }\n   Proposed: ${s.proposed}`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Optimize the experience section by applying ALL the accepted suggestions above while maintaining impact and professional structure.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. Locate each bullet point using the "Field" reference (e.g., "Senior Developer at TechCorp")
 3. Replace the exact "Current" content with the "Proposed" content
 4. Preserve all company names, job titles, and dates EXACTLY as written
@@ -350,7 +377,9 @@ Software Developer at StartupXYZ | Jun 2018 - Dec 2019
 **VERIFICATION CHECKLIST** (Review before returning):
 
 Before finalizing your output, verify:
-1. ✓ All ${acceptedSuggestions.length} suggestions have been incorporated into correct positions
+1. ✓ All ${
+    acceptedSuggestions.length
+  } suggestions have been incorporated into correct positions
 2. ✓ All company names, job titles, and dates are preserved exactly
 3. ✓ All bullets not mentioned in suggestions remain unchanged
 4. ✓ Structure and formatting match the original (bullets, spacing, order)
@@ -383,14 +412,23 @@ ${currentProjects}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. Field: ${s.target.field}\n   ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. Field: ${s.target.field}\n   ${s.preview}\n   Current: ${
+        s.target.current
+      }\n   Proposed: ${s.proposed}`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Optimize the projects section by applying ALL the accepted suggestions above while showcasing technical depth and project impact.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. Locate each project element using the "Field" reference (e.g., "E-commerce Platform")
 3. Replace the exact "Current" content with the "Proposed" content
 4. Preserve all project names and technology stacks EXACTLY as written
@@ -495,7 +533,9 @@ Tech: Vue.js, OpenWeather API, Chart.js
 **VERIFICATION CHECKLIST** (Review before returning):
 
 Before finalizing your output, verify:
-1. ✓ All ${acceptedSuggestions.length} suggestions have been incorporated into correct projects
+1. ✓ All ${
+    acceptedSuggestions.length
+  } suggestions have been incorporated into correct projects
 2. ✓ All project names and tech stacks are preserved exactly
 3. ✓ All bullets/descriptions not mentioned in suggestions remain unchanged
 4. ✓ Structure and formatting match the original (bullets, Tech: lines, spacing)
@@ -528,14 +568,23 @@ ${currentAchievements}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${
+        s.proposed
+      }`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Optimize the achievements section by applying ALL the accepted suggestions above while emphasizing quantifiable impact and recognition.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. Replace the exact "Current" content with the "Proposed" content
 3. Maintain bullet point format throughout
 4. Keep all achievements not mentioned in suggestions UNCHANGED
@@ -617,7 +666,9 @@ Return ONLY the optimized achievements section following these rules:
 **VERIFICATION CHECKLIST** (Review before returning):
 
 Before finalizing your output, verify:
-1. ✓ All ${acceptedSuggestions.length} suggestions have been incorporated correctly
+1. ✓ All ${
+    acceptedSuggestions.length
+  } suggestions have been incorporated correctly
 2. ✓ All achievements not mentioned in suggestions are preserved unchanged
 3. ✓ Each achievement uses bullet point (•) format
 4. ✓ Achievements are specific and quantifiable where possible
@@ -650,14 +701,23 @@ ${currentEducation}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${
+        s.proposed
+      }`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Optimize the education section by applying ALL the accepted suggestions above while maintaining clarity and professional formatting.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. Replace the exact "Current" content with the "Proposed" content
 3. Preserve degree names, universities, and graduation dates EXACTLY as written (unless explicitly modified by suggestion)
 4. Keep all education entries not mentioned in suggestions UNCHANGED
@@ -746,7 +806,9 @@ Concentration: Technology and Operations Management
 **VERIFICATION CHECKLIST** (Review before returning):
 
 Before finalizing your output, verify:
-1. ✓ All ${acceptedSuggestions.length} suggestions have been incorporated correctly
+1. ✓ All ${
+    acceptedSuggestions.length
+  } suggestions have been incorporated correctly
 2. ✓ All degree names, universities, and dates are preserved exactly (unless modified by suggestion)
 3. ✓ All education entries not mentioned in suggestions remain unchanged
 4. ✓ Format is clear, professional, and ATS-friendly
@@ -779,14 +841,23 @@ ${currentCertifications}
 
 ==========================
 **Accepted Suggestions to Apply**:
-${acceptedSuggestions.map((s, i) => `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${s.proposed}`).join('\n\n')}
+${acceptedSuggestions
+  .map(
+    (s, i) =>
+      `${i + 1}. ${s.preview}\n   Current: ${s.target.current}\n   Proposed: ${
+        s.proposed
+      }`
+  )
+  .join("\n\n")}
 ==========================
 
 **PRIMARY TASK**:
 Optimize the certifications section by applying ALL the accepted suggestions above while maintaining professional formatting and clear organization.
 
 **IMPORTANT RULES**:
-1. Apply EVERY suggestion listed above (all ${acceptedSuggestions.length} suggestions)
+1. Apply EVERY suggestion listed above (all ${
+    acceptedSuggestions.length
+  } suggestions)
 2. Replace the exact "Current" content with the "Proposed" content
 3. Keep all certifications not mentioned in suggestions UNCHANGED
 4. Include certification name, issuing organization, and year for each entry
@@ -836,38 +907,47 @@ Optimized Output:
 • Certified ScrumMaster (CSM) - Scrum Alliance, 2020
 • CompTIA Security+ - CompTIA, 2019 (Valid through 2025)
 ==========================
-
 **OUTPUT FORMAT REQUIREMENT**:
 
 Return ONLY the optimized certifications section following these rules:
-- Use bullet points (•) for each certification
-- Format: Certification Name - Issuing Organization, Year
-- Optional: Add validity/expiration info in parentheses if relevant
-- One certification per line
-- List in reverse chronological order (newest first)
+- Preserve the EXACT format and structure from the current certifications section
+- If certifications have detailed bullet points underneath, keep them unchanged
+- If certifications have descriptions, keep them unchanged
+- Only modify what the suggestions explicitly tell you to change
+- Maintain consistent formatting style throughout
+- List in reverse chronological order (newest first) unless current format differs
 - No preamble (DON'T say "Here is the optimized certifications section:")
 - No explanations, meta-commentary, or notes
-- No markdown headers (like "## Certifications")
-- Start directly with the first bullet point
+- No markdown headers (like "## Certifications" or "# CERTIFICATIONS")
+- Start directly with the first certification entry
 
-✓ VALID Output Example:
+✓ VALID Output Example (Simple Format):
 • AWS Certified Solutions Architect Professional - Amazon Web Services, 2023
 • Certified Kubernetes Administrator (CKA) - Cloud Native Computing Foundation, 2022
 • Google Cloud Professional Data Engineer - Google Cloud, 2021
-• CompTIA Security+ - CompTIA, 2020 (Valid through 2026)
+
+✓ VALID Output Example (Detailed Format with Sub-bullets):
+AWS Certified Cloud Practitioner (2024)
+• Demonstrated comprehensive understanding of AWS cloud infrastructure, security, and cost management principles
+• Mastered key AWS services including EC2, S3, RDS, DynamoDB, ECS/ECR, IAM, CloudWatch, and serverless technologies
+• Applied knowledge of cloud architecture best practices, deployment strategies, and infrastructure automation
+
+Google Cloud Professional Cloud Architect - Google Cloud, 2023
+• Designed and deployed scalable cloud solutions on GCP
+• Implemented security and compliance measures for enterprise applications
 
 ✗ INVALID Output Examples:
 - "Here are the updated certifications: • AWS..." (has preamble - WRONG)
 - "**Certifications**\n• AWS..." (has markdown header - WRONG)
 - "• AWS Certified (added per suggestion 1)" (has meta-commentary - WRONG)
-- "1. AWS Certified\n2. Google Cloud" (uses numbering instead of bullets - WRONG)
-- "• AWS Certified, 2023" (missing issuing organization - INCOMPLETE)
-
+- Changing bullet point details when suggestions only ask to change the title (over-modifying - WRONG)
 ==========================
 **VERIFICATION CHECKLIST** (Review before returning):
 
 Before finalizing your output, verify:
-1. ✓ All ${acceptedSuggestions.length} suggestions have been incorporated correctly
+1. ✓ All ${
+    acceptedSuggestions.length
+  } suggestions have been incorporated correctly
 2. ✓ All certifications not mentioned in suggestions are preserved unchanged
 3. ✓ Each certification includes: Name - Issuing Organization, Year
 4. ✓ Certifications are listed in reverse chronological order (newest first)

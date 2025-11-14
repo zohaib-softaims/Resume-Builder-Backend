@@ -386,6 +386,7 @@ DO NOT extract or add content from:
 - Projects section
 - Education section
 - Skills section
+- Certifications or Licenses section
 - Any other resume section
 into achievement or award section 
 

@@ -1,5 +1,5 @@
 import { catchAsync, AppError } from "../utils/error.js";
-import pdfParse from "pdf-parse";
+import { parseResumeFile, extractFormattedHtmlFromDocx } from "../utils/fileParser.js";
 import { sanitizedText } from "../utils/sanitizedText.js";
 import {
   resumeAnalysisPrompt,
@@ -20,6 +20,7 @@ import logger from "../lib/logger.js";
 import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { generateResumePDF } from "../utils/pdfGenerator.js";
 import { extractOriginalFileName } from "../utils/fileUtils.js";
+import { convertTextToPDF, convertFormattedHtmlToPDF } from "../utils/textToPdf.js";
 
 export const parseResume = catchAsync(async (req, res) => {
   let resumeText = '';
@@ -61,17 +62,61 @@ export const parseResume = catchAsync(async (req, res) => {
     logger.info("PDF generated and uploaded successfully", { url: uploadedResumeUrl });
 
   }
-  // Handle file upload (PDF/DOCX)
+  // Handle file upload (PDF/DOCX/TXT)
   else if (req.isFileUpload) {
-    logger.info("Processing uploaded resume file");
+    logger.info("Processing uploaded resume file", {
+      filename: req.file.originalname,
+      mimetype: req.file.mimetype
+    });
 
+    // Parse file based on type (PDF, DOCX, or TXT)
     const dataBuffer = req.file.buffer;
-    const parsed = await pdfParse(dataBuffer);
-    resumeText = parsed.text;
+    resumeText = await parseResumeFile(dataBuffer, req.file.mimetype);
     resumeText = sanitizedText(resumeText);
 
-    // Upload original file to S3
-    const uploadResult = await s3Uploader(req.file);
+    // For DOCX and TXT files, convert to PDF before uploading to S3
+    let fileToUpload = req.file;
+
+    if (req.file.mimetype !== "application/pdf") {
+      logger.info("Converting non-PDF file to PDF format", {
+        originalType: req.file.mimetype
+      });
+
+      let pdfBuffer;
+
+      // For DOCX files, extract formatted HTML to preserve formatting
+      if (req.file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+          req.file.mimetype === "application/msword") {
+        logger.info("Converting DOCX to PDF with preserved formatting");
+
+        // Extract formatted HTML from DOCX (preserves headings, bold, bullets, etc.)
+        const formattedHtml = await extractFormattedHtmlFromDocx(dataBuffer);
+
+        // Convert formatted HTML to PDF
+        pdfBuffer = await convertFormattedHtmlToPDF(formattedHtml, req.file.originalname);
+      }
+      // For TXT files, use simple text conversion
+      else if (req.file.mimetype === "text/plain") {
+        logger.info("Converting TXT to PDF");
+        pdfBuffer = await convertTextToPDF(resumeText, req.file.originalname);
+      }
+
+      // Create a new file object with PDF buffer
+      fileToUpload = {
+        buffer: pdfBuffer,
+        originalname: req.file.originalname.replace(/\.(docx?|txt)$/i, '.pdf'),
+        mimetype: "application/pdf",
+        size: pdfBuffer.length,
+      };
+
+      logger.info("Successfully converted to PDF", {
+        newFilename: fileToUpload.originalname,
+        pdfSize: pdfBuffer.length
+      });
+    }
+
+    // Upload file to S3 (either original PDF or converted PDF)
+    const uploadResult = await s3Uploader(fileToUpload);
     uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
   }
 

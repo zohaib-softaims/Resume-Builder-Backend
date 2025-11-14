@@ -87,6 +87,9 @@ export const optimizeResume = async (resumeText, parsedAnalysis, resumeId) => {
     resume_id: resumeId,
   });
 
+  // Check if achievements/awards optimization returned empty content
+  const hasAchievementsAwards = optimizedAchievementsAwards && optimizedAchievementsAwards.trim().length > 0;
+
   const [
     personalInfoJson,
     summaryJson,
@@ -139,13 +142,16 @@ export const optimizeResume = async (resumeText, parsedAnalysis, resumeId) => {
       model: "gpt-4o-2024-08-06",
       schemaName: "education",
     }),
-    getLLMResponse({
-      systemPrompt: formatAchievementsAwardsPrompt(optimizedAchievementsAwards),
-      messages: [],
-      responseSchema: achievementsAwardsSchema,
-      model: "gpt-4o-2024-08-06",
-      schemaName: "achievements_awards",
-    }),
+    // Skip formatting if no achievements/awards content
+    hasAchievementsAwards
+      ? getLLMResponse({
+          systemPrompt: formatAchievementsAwardsPrompt(optimizedAchievementsAwards),
+          messages: [],
+          responseSchema: achievementsAwardsSchema,
+          model: "gpt-4o-2024-08-06",
+          schemaName: "achievements_awards",
+        })
+      : Promise.resolve(JSON.stringify({ achievements: [], awards: [] })),
     getLLMResponse({
       systemPrompt: formatCertificationsPrompt(resumeText),
       messages: [],
@@ -285,6 +291,9 @@ export const optimizeResumeWithSuggestions = async (
     });
   };
 
+  // Check if achievements/awards optimization returned empty content
+  const hasAchievementsAwards = optimizedAchievementsAwards && optimizedAchievementsAwards.trim().length > 0;
+
   // Format all sections in parallel
   const [
     personalInfoJson,
@@ -302,7 +311,10 @@ export const optimizeResumeWithSuggestions = async (
     formatSection(optimizedExperience, formatExperiencePrompt, experienceSchema, "experience"),
     formatSection(optimizedProjects, formatProjectsPrompt, projectsSchema, "projects"),
     formatSection(optimizedEducation, formatEducationPrompt, educationSchema, "education"),
-    formatSection(optimizedAchievementsAwards, formatAchievementsAwardsPrompt, achievementsAwardsSchema, "achievements_awards"),
+    // Skip formatting if no achievements/awards content
+    hasAchievementsAwards
+      ? formatSection(optimizedAchievementsAwards, formatAchievementsAwardsPrompt, achievementsAwardsSchema, "achievements_awards")
+      : Promise.resolve(JSON.stringify({ achievements: [], awards: [] })),
     formatSection(optimizedCertifications, formatCertificationsPrompt, certificationsSchema, "certifications"),
   ]);
 
