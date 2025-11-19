@@ -718,12 +718,13 @@ Optimize the education section by applying ALL the accepted suggestions above wh
 1. Apply EVERY suggestion listed above (all ${
     acceptedSuggestions.length
   } suggestions)
-2. Replace the exact "Current" content with the "Proposed" content
-3. Preserve degree names, universities, and graduation dates EXACTLY as written (unless explicitly modified by suggestion)
-4. Keep all education entries not mentioned in suggestions UNCHANGED
-5. Maintain clear, scannable structure
-6. Add relevant coursework, honors, or GPA only if suggested
-7. Keep format professional and ATS-friendly
+2. If "Current Education" is empty, "N/A", or "None": CREATE a new education section using ONLY the proposed content from suggestions
+3. If "Current Education" exists: Replace the exact "Current" content with the "Proposed" content
+4. Preserve degree names, universities, and graduation dates EXACTLY as written (unless explicitly modified by suggestion)
+5. Keep all education entries not mentioned in suggestions UNCHANGED
+6. Maintain clear, scannable structure
+7. Add relevant coursework, honors, or GPA only if suggested
+8. Keep format professional and ATS-friendly
 
 ==========================
 **EXAMPLES**:
@@ -772,6 +773,30 @@ City College | 2018 | Magna Cum Laude
 
 Associate Degree in Business
 Community College | 2016 | Dean's List all semesters
+
+**Example 4 - Creating Education Section from Scratch (NO CURRENT EDUCATION)**:
+Current Education:
+N/A
+
+Suggestions:
+1. Add new education: "Bachelor of Science in Computer Science - Stanford University | 2021 | GPA: 3.8/4.0"
+
+Optimized Output:
+Bachelor of Science in Computer Science
+Stanford University | 2021 | GPA: 3.8/4.0
+
+**Example 5 - Creating Multiple Education Entries from Empty Resume**:
+Current Education:
+None
+
+Suggestions:
+1. Add "Bachelor of Engineering in Software Engineering - MIT | 2020"
+2. Add "Relevant Coursework: Algorithms, Data Structures, Machine Learning, Cloud Computing"
+
+Optimized Output:
+Bachelor of Engineering in Software Engineering
+MIT | 2020
+Relevant Coursework: Algorithms, Data Structures, Machine Learning, Cloud Computing
 ==========================
 
 **OUTPUT FORMAT REQUIREMENT**:

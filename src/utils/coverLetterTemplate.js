@@ -29,16 +29,16 @@ export const coverLetterHtmlTemplate = (coverLetterData, resumeJson) => {
       line-height: 1.6;
       color: #333;
       background: white;
-      padding: 0.5in;
+      padding: 0.15in 0.5in 0.15in 0.5in;
     }
 
     .header {
-      margin-bottom: 30px;
+      margin-bottom: 15px;
     }
 
     .contact-info {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     .contact-info h1 {
@@ -61,7 +61,7 @@ export const coverLetterHtmlTemplate = (coverLetterData, resumeJson) => {
 
     .date {
       font-size: 10pt;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       color: #555;
     }
 

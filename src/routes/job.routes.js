@@ -5,6 +5,7 @@ import {
   getJob,
   getUserJobs,
   generateResumeFromJson,
+  deleteJob,
 } from "../controllers/job.controller.js";
 import {
   generateSuggestionsHandler,
@@ -46,5 +47,6 @@ router.post(
 );
 router.get("/", requireAuth, getUserJobs);
 router.get("/:job_id", requireAuth, getJob);
+router.delete("/:job_id", requireAuth, deleteJob);
 
 export default router;

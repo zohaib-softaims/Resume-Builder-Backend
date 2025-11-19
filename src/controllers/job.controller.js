@@ -14,20 +14,31 @@ import {
   generateResumePDF,
   generatePDFFromHtml,
 } from "../utils/pdfGenerator.js";
-import { s3Uploader } from "../utils/s3Uploader.js";
+import { s3Uploader, deleteS3Object } from "../utils/s3Uploader.js";
 import { extractOriginalFileName } from "../utils/fileUtils.js";
 import {
   createJob,
   getJobById,
   updateJob,
   getJobsByUserId,
+  getJobCountByUserId,
+  deleteJob as deleteJobFromDb,
 } from "../services/job.service.js";
 import { getResumeById } from "../services/resume.service.js";
 import { optimizeResumeForJob } from "../services/jobResumeOptimization.service.js";
 import { generateCoverLetterForJob } from "../services/coverLetterGeneration.service.js";
 import logger from "../lib/logger.js";
+import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
 
 export const scrapJob = catchAsync(async (req, res) => {
+  // Check if user has reached the job analysis limit
+  const userId = req.auth.userId;
+  const jobCount = await getJobCountByUserId(userId);
+
+  if (jobCount >= USER_LIMITS.MAX_JOBS_PER_USER) {
+    throw new AppError(429, LIMIT_ERROR_MESSAGES.JOB_LIMIT_EXCEEDED);
+  }
+
   const { job_url, job_description, resume_id } = req.body;
 
   // Fetch or use provided job description
@@ -344,6 +355,69 @@ export const getUserJobs = catchAsync(async (req, res) => {
     data: {
       jobs: jobsData,
       count: jobsData.length,
+    },
+  });
+});
+
+/**
+ * Delete a job analysis, including S3 files
+ * @route DELETE /api/job/:job_id
+ */
+export const deleteJob = catchAsync(async (req, res) => {
+  const { job_id } = req.params;
+  const userId = req.auth.userId;
+
+  logger.info("Deleting job", { job_id, userId });
+
+  // Get job to verify ownership and get file URLs
+  const job = await getJobById(job_id);
+
+  if (!job) {
+    throw new AppError(404, "Job not found");
+  }
+
+  // Verify user owns this job (through resume)
+  const resume = await getResumeById(job.resume_id);
+  if (!resume || resume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to delete this job");
+  }
+
+  // Collect all S3 URLs to delete
+  const s3UrlsToDelete = [];
+
+  if (job.optimized_resumeUrl) {
+    s3UrlsToDelete.push(job.optimized_resumeUrl);
+  }
+
+  if (job.cover_letterUrl) {
+    s3UrlsToDelete.push(job.cover_letterUrl);
+  }
+
+  // Delete from database
+  await deleteJobFromDb(job_id);
+
+  logger.info("Job deleted from database", { job_id });
+
+  // Delete S3 files in background (don't await)
+  Promise.all(s3UrlsToDelete.map(url => deleteS3Object(url)))
+    .then(() => {
+      logger.info("Background S3 cleanup completed", {
+        job_id,
+        filesDeleted: s3UrlsToDelete.length
+      });
+    })
+    .catch(error => {
+      logger.error("Background S3 cleanup failed", {
+        job_id,
+        error: error.message
+      });
+    });
+
+  res.status(200).json({
+    success: true,
+    message: "Job deleted successfully",
+    data: {
+      job_id,
     },
   });
 });

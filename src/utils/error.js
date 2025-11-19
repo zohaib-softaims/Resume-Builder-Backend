@@ -14,12 +14,12 @@ export const catchAsync = (fn) => (req, res, next) => {
 
 export const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
-  let message = err.message || "Internal Server Error";
+  let clientMessage = err.message || "Internal Server Error";
 
   // Handle Zod validation errors
   if (err.name === "ZodError") {
     statusCode = 400;
-    message = err.errors[0].message;
+    clientMessage = err.errors[0].message;
   }
 
   // Handle Supabase errors
@@ -27,8 +27,16 @@ export const errorHandler = (err, req, res, next) => {
     statusCode = err.status;
   }
 
+  const isOperationalError =
+    err instanceof AppError || err.name === "ZodError" || Boolean(err.status);
+
+  // Hide internal errors (like Prisma/DB failures) from clients
+  if (!isOperationalError && statusCode >= 500) {
+    clientMessage = "Something went wrong. Please try again later.";
+  }
+
   // Log the error with full context
-  logger.error(`API Error: ${message}`, {
+  logger.error(`API Error: ${err.message || clientMessage}`, {
     statusCode,
     errorName: err.name,
     errorMessage: err.message,
@@ -42,6 +50,6 @@ export const errorHandler = (err, req, res, next) => {
 
   res.status(statusCode).json({
     success: false,
-    message,
+    message: clientMessage,
   });
 };

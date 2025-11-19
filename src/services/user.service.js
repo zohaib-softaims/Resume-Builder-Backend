@@ -3,14 +3,17 @@ import { getJobsByUserId, getOptimizedJobCountByUserId } from "./job.service.js"
 import { extractOriginalFileName } from "../utils/fileUtils.js";
 
 export const getUserStats = async (user_id) => {
-  // Execute all 4 queries in parallel
-  const [allResumes, latestResumes, latestJobs, jobOptimizedCount] =
+  // Execute all 5 queries in parallel
+  const [allResumes, latestResumes, allJobs, latestJobs, jobOptimizedCount] =
     await Promise.all([
       // Get ALL resumes for stats calculation (no limit)
       getResumesByUserId(user_id),
 
       // Get top 3 latest resumes (with limit)
       getResumesByUserId(user_id, 3),
+
+      // Get ALL jobs for count (no limit)
+      getJobsByUserId(user_id),
 
       // Get top 3 latest jobs (with limit)
       getJobsByUserId(user_id, 3),
@@ -61,6 +64,7 @@ export const getUserStats = async (user_id) => {
         : null,
       best_ats_score: bestAtsScore,
       total_resumes_uploaded: allResumes.length,
+      total_jobs_analyzed: allJobs.length,
       total_job_optimized_resumes: jobOptimizedCount,
     },
     latest_resumes: latestResumes.map((resume) => ({

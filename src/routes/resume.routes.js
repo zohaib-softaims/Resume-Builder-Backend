@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { upload } from "../utils/multer.js";
-import { parseResume, optimizeResume, getUserResumes, getResume } from "../controllers/resume.controller.js";
+import { parseResume, optimizeResume, getUserResumes, getResume, deleteResume } from "../controllers/resume.controller.js";
 import { resumeFileValidator } from "../validators/resumeFile.validator.js";
 import { resumeJsonValidator } from "../validators/resumeJson.validator.js";
 import { parseResumeHandler } from "../middleware/parseResumeHandler.middleware.js";
@@ -36,5 +36,6 @@ router.post(
 router.post("/optimize", requireAuth, validate(optimizeResumeSchema), optimizeResume);
 router.get("/", requireAuth, getUserResumes);
 router.get("/:resume_id", requireAuth, getResume);
+router.delete("/:resume_id", requireAuth, deleteResume);
 
 export default router;

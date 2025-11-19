@@ -56,3 +56,28 @@ export const getResumesByUserId = async (user_id, limit = null) => {
 
   return prisma.resume.findMany(query);
 };
+
+/**
+ * Get the count of resumes for a specific user
+ * @param {string} user_id - The user's ID
+ * @returns {Promise<number>} - Count of resumes
+ */
+export const getResumeCountByUserId = async (user_id) => {
+  return prisma.resume.count({
+    where: { user_id },
+  });
+};
+
+/**
+ * Delete a resume and all associated jobs
+ * @param {string} resume_id - The resume's ID
+ * @returns {Promise<Object>} - Deleted resume with jobs
+ */
+export const deleteResume = async (resume_id) => {
+  return prisma.resume.delete({
+    where: { id: resume_id },
+    include: {
+      jobs: true,
+    },
+  });
+};

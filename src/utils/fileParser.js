@@ -1,6 +1,7 @@
 import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 import logger from "../lib/logger.js";
+import { AppError } from "./error.js";
 
 /**
  * Parses resume files (PDF, DOCX, TXT) and extracts text content
@@ -16,8 +17,29 @@ export const parseResumeFile = async (fileBuffer, mimetype) => {
     if (mimetype === "application/pdf") {
       // Parse PDF file
       logger.info("Parsing PDF file");
-      const parsed = await pdfParse(fileBuffer);
-      return parsed.text;
+      try {
+        const parsed = await pdfParse(fileBuffer);
+        return parsed.text;
+      } catch (pdfError) {
+        logger.error("PDF parsing error:", pdfError);
+        // Provide user-friendly error for PDF issues
+        if (pdfError.message.includes("XRef") || pdfError.message.includes("xref")) {
+          throw new AppError(
+            400,
+            "Resume parsing failed. Your PDF looks corrupted—please re-export it."
+          );
+        } else if (pdfError.message.includes("encrypt") || pdfError.message.includes("password")) {
+          throw new AppError(
+            400,
+            "Resume parsing failed because the PDF is password protected. Remove the password and try again."
+          );
+        } else {
+          throw new AppError(
+            400,
+            "Resume parsing failed. Try uploading a fresh PDF"
+          );
+        }
+      }
     } else if (
       mimetype ===
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
@@ -37,13 +59,22 @@ export const parseResumeFile = async (fileBuffer, mimetype) => {
       logger.info("Parsing TXT file");
       return fileBuffer.toString("utf-8");
     } else {
-      throw new Error(
+      throw new AppError(
+        400,
         `Unsupported file type: ${mimetype}. Supported formats are PDF, DOCX, and TXT.`
       );
     }
   } catch (error) {
     logger.error("File parsing error:", error);
-    throw new Error(`Failed to parse file: ${error.message}`);
+    // Re-throw a safe, user-friendly error
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(
+      400,
+      "Resume parsing failed. Please upload a valid PDF, DOCX, or TXT file."
+    );
   }
 };
 

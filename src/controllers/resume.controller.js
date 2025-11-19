@@ -6,12 +6,14 @@ import {
   resumeAnalysisSchema,
 } from "../llmPrompts/resumeAnalysisPrompt.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
-import { s3Uploader } from "../utils/s3Uploader.js";
+import { s3Uploader, deleteS3Object } from "../utils/s3Uploader.js";
 import {
   createResume,
   getResumeById,
   updateResume,
   getResumesByUserId,
+  getResumeCountByUserId,
+  deleteResume as deleteResumeFromDb,
 } from "../services/resume.service.js";
 import { optimizeResume as optimizeResumeContent } from "../services/resumeOptimization.service.js";
 import { convertResumeTextToJson } from "../services/resumeTextToJson.service.js";
@@ -21,8 +23,17 @@ import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { generateResumePDF } from "../utils/pdfGenerator.js";
 import { extractOriginalFileName } from "../utils/fileUtils.js";
 import { convertTextToPDF, convertFormattedHtmlToPDF } from "../utils/textToPdf.js";
+import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
 
 export const parseResume = catchAsync(async (req, res) => {
+  // Check if user has reached the resume limit
+  const userId = req.auth.userId;
+  const resumeCount = await getResumeCountByUserId(userId);
+
+  if (resumeCount >= USER_LIMITS.MAX_RESUMES_PER_USER) {
+    throw new AppError(429, LIMIT_ERROR_MESSAGES.RESUME_LIMIT_EXCEEDED);
+  }
+
   let resumeText = '';
   let uploadedResumeUrl = null;
   let resumeJson = null;
@@ -323,6 +334,80 @@ export const getResume = catchAsync(async (req, res) => {
       optimized_resume_url: resume.optimized_resumeUrl,
       created_at: resume.createdAt,
       updated_at: resume.updatedAt,
+    },
+  });
+});
+
+/**
+ * Delete a resume and all associated jobs, including S3 files
+ * @route DELETE /api/resume/:resume_id
+ */
+export const deleteResume = catchAsync(async (req, res) => {
+  const { resume_id } = req.params;
+  const userId = req.auth.userId;
+
+  logger.info("Deleting resume", { resume_id, userId });
+
+  // Get resume to verify ownership and get file URLs
+  const resume = await getResumeById(resume_id);
+
+  if (!resume) {
+    throw new AppError(404, "Resume not found");
+  }
+
+  // Verify user owns this resume
+  if (resume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to delete this resume");
+  }
+
+  // Collect all S3 URLs to delete
+  const s3UrlsToDelete = [];
+
+  if (resume.resume_fileUrl) {
+    s3UrlsToDelete.push(resume.resume_fileUrl);
+  }
+
+  if (resume.optimized_resumeUrl) {
+    s3UrlsToDelete.push(resume.optimized_resumeUrl);
+  }
+
+  // Get all jobs associated with this resume to delete their S3 files too
+  const jobs = resume.jobs || [];
+
+  jobs.forEach(job => {
+    if (job.optimized_resumeUrl) {
+      s3UrlsToDelete.push(job.optimized_resumeUrl);
+    }
+    if (job.cover_letterUrl) {
+      s3UrlsToDelete.push(job.cover_letterUrl);
+    }
+  });
+
+  // Delete from database (cascade will delete associated jobs)
+  await deleteResumeFromDb(resume_id);
+
+  logger.info("Resume deleted from database", { resume_id });
+
+  // Delete S3 files in background (don't await)
+  Promise.all(s3UrlsToDelete.map(url => deleteS3Object(url)))
+    .then(() => {
+      logger.info("Background S3 cleanup completed", {
+        resume_id,
+        filesDeleted: s3UrlsToDelete.length
+      });
+    })
+    .catch(error => {
+      logger.error("Background S3 cleanup failed", {
+        resume_id,
+        error: error.message
+      });
+    });
+
+  res.status(200).json({
+    success: true,
+    message: "Resume and all associated data deleted successfully",
+    data: {
+      resume_id,
     },
   });
 });

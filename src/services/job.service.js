@@ -100,3 +100,27 @@ export const getOptimizedJobCountByUserId = async (user_id) => {
     },
   });
 };
+
+/**
+ * Get the total count of job analyses for a specific user
+ * @param {string} user_id - The user's ID
+ * @returns {Promise<number>} - Count of job analyses
+ */
+export const getJobCountByUserId = async (user_id) => {
+  return prisma.job.count({
+    where: {
+      resume: { user_id },
+    },
+  });
+};
+
+/**
+ * Delete a job analysis
+ * @param {string} job_id - The job's ID
+ * @returns {Promise<Object>} - Deleted job
+ */
+export const deleteJob = async (job_id) => {
+  return prisma.job.delete({
+    where: { id: job_id },
+  });
+};
