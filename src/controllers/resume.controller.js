@@ -337,6 +337,11 @@ export const getResume = catchAsync(async (req, res) => {
     throw new AppError(404, "Resume not found");
   }
 
+  // Verify user owns this resume
+  if (resume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to access this resume");
+  }
+
   // Parse resume analysis from JSON
   const parsedAnalysis = resume.resume_analysis ? JSON.parse(resume.resume_analysis) : {};
 

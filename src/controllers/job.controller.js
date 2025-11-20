@@ -173,14 +173,21 @@ export const scrapJob = catchAsync(async (req, res) => {
 
 export const optimizeJobResume = catchAsync(async (req, res) => {
   const { job_id } = req.body;
+  const userId = req.auth.userId;
 
-  logger.info("Starting job-based resume optimization", { job_id });
+  logger.info("Starting job-based resume optimization", { job_id, userId });
 
   // Fetch job from database
   const job = await getJobById(job_id);
 
   if (!job) {
     throw new AppError(404, "Job not found");
+  }
+
+  // Verify user owns this job (through the associated resume)
+  const jobResume = await getResumeById(job.resume_id);
+  if (!jobResume || jobResume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to access this job");
   }
 
   // Check if resume and cover letter already exist
@@ -209,8 +216,8 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
     ? JSON.parse(job_gap_analysis)
     : {};
 
-  // Fetch resume from database
-  const resume = await getResumeById(resume_id);
+  // Resume already fetched above for authorization
+  const resume = jobResume;
 
   if (!resume) {
     throw new AppError(404, "Resume not found");
@@ -329,13 +336,20 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
 
 export const getJob = catchAsync(async (req, res) => {
   const { job_id } = req.params;
+  const userId = req.auth.userId;
 
-  logger.info("Fetching job details", { job_id });
+  logger.info("Fetching job details", { job_id, userId });
 
   const job = await getJobById(job_id);
 
   if (!job) {
     throw new AppError(404, "Job not found");
+  }
+
+  // Verify user owns this job (through the associated resume)
+  const resume = await getResumeById(job.resume_id);
+  if (!resume || resume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to access this job");
   }
 
   // Parse gap analysis from JSON
@@ -459,8 +473,9 @@ export const deleteJob = catchAsync(async (req, res) => {
 
 export const getResumeComparisonJson = catchAsync(async (req, res) => {
   const { job_id } = req.body;
+  const userId = req.auth.userId;
 
-  logger.info("Starting resume comparison JSON generation", { job_id });
+  logger.info("Starting resume comparison JSON generation", { job_id, userId });
 
   // Fetch job from database
   const job = await getJobById(job_id);
@@ -479,6 +494,11 @@ export const getResumeComparisonJson = catchAsync(async (req, res) => {
 
   if (!resume) {
     throw new AppError(404, "Resume not found");
+  }
+
+  // Verify user owns this job/resume
+  if (resume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to access this job");
   }
 
   const { resume_text, resume_json } = resume;
@@ -599,14 +619,21 @@ export const getResumeComparisonJson = catchAsync(async (req, res) => {
 
 export const generateResumeFromJson = catchAsync(async (req, res) => {
   const { job_id, resume_json } = req.body;
+  const userId = req.auth.userId;
 
-  logger.info("Starting resume generation from JSON", { job_id });
+  logger.info("Starting resume generation from JSON", { job_id, userId });
 
   // Fetch job from database
   const job = await getJobById(job_id);
 
   if (!job) {
     throw new AppError(404, "Job not found");
+  }
+
+  // Verify user owns this job (through the associated resume)
+  const jobResume = await getResumeById(job.resume_id);
+  if (!jobResume || jobResume.user_id !== userId) {
+    throw new AppError(403, "You don't have permission to access this job");
   }
 
   const { job_description } = job;
