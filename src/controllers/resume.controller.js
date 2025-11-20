@@ -24,14 +24,18 @@ import { generateResumePDF } from "../utils/pdfGenerator.js";
 import { extractOriginalFileName } from "../utils/fileUtils.js";
 import { convertTextToPDF, convertFormattedHtmlToPDF } from "../utils/textToPdf.js";
 import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
+import { autoClaimGuestResume } from "../utils/autoClaimHelper.js";
 
 export const parseResume = catchAsync(async (req, res) => {
-  // Check if user has reached the resume limit
-  const userId = req.auth.userId;
-  const resumeCount = await getResumeCountByUserId(userId);
+  const userId = req.auth?.userId; // Optional - can be guest
+  const isGuest = !userId;
 
-  if (resumeCount >= USER_LIMITS.MAX_RESUMES_PER_USER) {
-    throw new AppError(429, LIMIT_ERROR_MESSAGES.RESUME_LIMIT_EXCEEDED);
+  // Only check resume limit for authenticated users
+  if (!isGuest) {
+    const resumeCount = await getResumeCountByUserId(userId);
+    if (resumeCount >= USER_LIMITS.MAX_RESUMES_PER_USER) {
+      throw new AppError(429, LIMIT_ERROR_MESSAGES.RESUME_LIMIT_EXCEEDED);
+    }
   }
 
   let resumeText = '';
@@ -152,14 +156,18 @@ export const parseResume = catchAsync(async (req, res) => {
     achievement_focus: parsedAnalysis?.achievement_focus || null,
   };
 
+  // Set expiry for guest users (24 hours from now)
+  const expiresAt = isGuest ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null;
+
   // Create resume record in database
   const response = await createResume(
-    req.auth.userId,
+    userId, // Will be null for guests
     resumeText,
     uploadedResumeUrl,
     analysis,
     resumeAnalysisScore,
-    resumeJson // Pass JSON data if available (will be null for file uploads)
+    resumeJson, // Pass JSON data if available (will be null for file uploads)
+    expiresAt // Pass expiry time for guests
   );
 
   const resumeId = response.id;
@@ -187,23 +195,29 @@ export const parseResume = catchAsync(async (req, res) => {
       });
   }
 
-  logger.info("Resume processed successfully", { resume_id: resumeId });
+  logger.info("Resume processed successfully", { resume_id: resumeId, isGuest });
 
   res.status(200).json({
     success: true,
-    message: "Resume analyzed successfully",
+    message: isGuest ? "Resume analyzed successfully. Sign up to optimize and save!" : "Resume analyzed successfully",
     data: {
       resume_id: response.id,
       resume_analysis: parsedAnalysis,
       resume_url: uploadedResumeUrl,
+      isGuest,
+      expires_at: expiresAt,
     },
   });
 });
 
 export const optimizeResume = catchAsync(async (req, res) => {
   const { resume_id } = req.body;
+  const userId = req.auth?.userId;
 
-  logger.info("Starting resume optimization", { resume_id });
+  logger.info("Starting resume optimization", { resume_id, userId });
+
+  // Auto-claim if guest resume (requires auth)
+  await autoClaimGuestResume(resume_id, userId);
 
   // Fetch resume from database
   const resume = await getResumeById(resume_id);
@@ -310,8 +324,12 @@ export const getUserResumes = catchAsync(async (req, res) => {
 
 export const getResume = catchAsync(async (req, res) => {
   const { resume_id } = req.params;
+  const userId = req.auth?.userId;
 
-  logger.info("Fetching resume details", { resume_id });
+  logger.info("Fetching resume details", { resume_id, userId });
+
+  // Auto-claim if authenticated user accessing guest resume
+  await autoClaimGuestResume(resume_id, userId);
 
   const resume = await getResumeById(resume_id);
 
@@ -347,6 +365,9 @@ export const deleteResume = catchAsync(async (req, res) => {
   const userId = req.auth.userId;
 
   logger.info("Deleting resume", { resume_id, userId });
+
+  // Auto-claim if guest resume before delete
+  await autoClaimGuestResume(resume_id, userId);
 
   // Get resume to verify ownership and get file URLs
   const resume = await getResumeById(resume_id);

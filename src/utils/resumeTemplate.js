@@ -185,6 +185,18 @@ export function resumeHtmlTemplate(resume) {
 
   const formatList = (items) => items?.map((i) => `<li>${i}</li>`).join("") || "";
 
+  // Build contact info array with social links
+  const contactInfo = [resume.email, resume.phone, resume.linkedin, resume.location].filter(Boolean);
+
+  // Add social links if available
+  if (resume.socialLinks && Array.isArray(resume.socialLinks)) {
+    resume.socialLinks.forEach(link => {
+      if (link.url) {
+        contactInfo.push(link.url);
+      }
+    });
+  }
+
   return `
 <!DOCTYPE html>
 <html>
@@ -196,7 +208,7 @@ export function resumeHtmlTemplate(resume) {
 <body>
   <h1>${resume.name || ""}</h1>
   <div class="contact">
-    ${[resume.email, resume.phone, resume.linkedin, resume.location].filter(Boolean).join(" | ")}
+    ${contactInfo.join(" | ")}
   </div>
 
   ${

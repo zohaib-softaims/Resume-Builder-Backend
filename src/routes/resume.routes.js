@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/auth.middleware.js";
+import { requireAuth, optionalAuth } from "../middleware/auth.middleware.js";
 import { upload } from "../utils/multer.js";
 import { parseResume, optimizeResume, getUserResumes, getResume, deleteResume } from "../controllers/resume.controller.js";
 import { resumeFileValidator } from "../validators/resumeFile.validator.js";
@@ -10,10 +10,10 @@ import { validate } from "../middleware/validator.js";
 
 const router = Router();
 
-// Parse resume - handles both file upload and JSON data
+// Parse resume - handles both file upload and JSON data (PUBLIC - guests allowed)
 router.post(
   "/parse",
-  requireAuth,
+  optionalAuth, // Changed from requireAuth to optionalAuth
   parseResumeHandler,
   (req, res, next) => {
     // Only apply multer for file uploads
@@ -35,7 +35,7 @@ router.post(
 );
 router.post("/optimize", requireAuth, validate(optimizeResumeSchema), optimizeResume);
 router.get("/", requireAuth, getUserResumes);
-router.get("/:resume_id", requireAuth, getResume);
+router.get("/:resume_id", optionalAuth, getResume); // Allow guests to view their own resumes
 router.delete("/:resume_id", requireAuth, deleteResume);
 
 export default router;

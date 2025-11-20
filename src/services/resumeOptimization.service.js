@@ -188,6 +188,10 @@ export const optimizeResume = async (resumeText, parsedAnalysis, resumeId) => {
     achievements: achievementsAwardsWrapper.achievements || [],
     awards: achievementsAwardsWrapper.awards || [],
     interests: [],
+    // Include social links if extracted
+    ...(personalInfo.socialLinks && personalInfo.socialLinks.length > 0 && {
+      socialLinks: personalInfo.socialLinks
+    }),
   };
 
   logger.info("Resume content optimization completed", { resume_id: resumeId });
@@ -348,6 +352,10 @@ export const optimizeResumeWithSuggestions = async (
     achievements: achievementsAwardsWrapper.achievements || [],
     awards: achievementsAwardsWrapper.awards || [],
     interests: [],
+    // Include social links if extracted
+    ...(personalInfo.socialLinks && personalInfo.socialLinks.length > 0 && {
+      socialLinks: personalInfo.socialLinks
+    }),
   };
 
   logger.info("Resume optimization with suggestions completed", {

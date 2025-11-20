@@ -13,6 +13,7 @@ import { errorHandler } from "./utils/error.js";
 import cookieParser from "cookie-parser";
 import { clerkMiddleware } from "@clerk/express";
 import logger from "./lib/logger.js";
+import { scheduleGuestCleanup } from "./jobs/cleanupGuestResumes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -49,4 +50,7 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 9000;
 httpServer.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
+
+  // Start guest resume cleanup job
+  scheduleGuestCleanup();
 });

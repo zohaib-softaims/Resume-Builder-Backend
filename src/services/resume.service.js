@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma.js";
 
-export const createResume = async (user_id, resume_text, resume_fileUrl, resume_analysis, resume_analysis_score = null, resume_json = null) => {
+export const createResume = async (user_id, resume_text, resume_fileUrl, resume_analysis, resume_analysis_score = null, resume_json = null, expires_at = null) => {
   const data = {
     user_id,
     resume_text,
@@ -12,6 +12,11 @@ export const createResume = async (user_id, resume_text, resume_fileUrl, resume_
   // Only add resume_json if it's provided
   if (resume_json !== null) {
     data.resume_json = resume_json;
+  }
+
+  // Add expires_at for guest resumes
+  if (expires_at !== null) {
+    data.expires_at = expires_at;
   }
 
   const resume = await prisma.resume.create({

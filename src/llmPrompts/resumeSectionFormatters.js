@@ -14,9 +14,12 @@ ${originalResumeText}
 - Location (city, state/country)
 - LinkedIn profile URL
 - Portfolio/Website URL
+- Social Links (Instagram, GitHub, Portfolio, etc.)
 
 **Instructions**:
 - Look for contact information at the top of the resume
+- Extract any social media links or platforms mentioned (Instagram, GitHub, Portfolio, etc.)
+- For social links, look for patterns like "Instagram: url", "GitHub: url", "Portfolio: url"
 - Use exact information found in the text
 - If not found, use placeholder "Your Name", "your@email.com", etc.
 - Return ONLY JSON, no additional text
@@ -28,7 +31,11 @@ ${originalResumeText}
   "phone": "+1 (555) 123-4567",
   "location": "City, State",
   "linkedin": "linkedin.com/in/username",
-  "portfolio": "https://portfolio.com"
+  "portfolio": "https://portfolio.com",
+  "socialLinks": [
+    {"platform": "Instagram", "url": "https://instagram.com/username"},
+    {"platform": "GitHub", "url": "https://github.com/username"}
+  ]
 }
 `;
 };
@@ -42,8 +49,21 @@ export const personalInfoSchema = {
     location: { type: "string" },
     linkedin: { type: "string" },
     portfolio: { type: "string" },
+    socialLinks: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          platform: { type: "string" },
+          url: { type: "string" }
+        },
+        required: ["platform", "url"],
+        additionalProperties: false
+      },
+      default: []
+    }
   },
-  required: ["name", "email", "phone", "location", "linkedin", "portfolio"],
+  required: ["name", "email", "phone", "location", "linkedin", "portfolio", "socialLinks"],
   additionalProperties: false,
 };
 

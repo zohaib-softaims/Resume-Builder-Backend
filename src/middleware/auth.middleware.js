@@ -16,3 +16,13 @@ export const requireAuth = (req, res, next) => {
   }
   next();
 };
+
+/**
+ * Optional auth middleware - doesn't block if not authenticated
+ * Useful for endpoints that support both guest and authenticated users
+ */
+export const optionalAuth = (req, res, next) => {
+  // Just pass through - req.auth will be populated if user is authenticated
+  // Otherwise req.auth?.userId will be undefined
+  next();
+};

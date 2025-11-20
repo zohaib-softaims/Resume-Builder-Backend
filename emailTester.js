@@ -29,7 +29,7 @@ import { careerGoalsTabNotUsedEmailTemplate } from "./src/emailTemplates/careerG
 import { careerRoadmapTabNotUsedEmailTemplate } from "./src/emailTemplates/careerRoadmapTabNotUsedEmail.template.js";
 import { salaryTabNotUsedEmailTemplate } from "./src/emailTemplates/salaryTabNotUsedEmail.template.js";
 import { improvedResumeCompletedEmailTemplate } from "./src/emailTemplates/improvedResumeCompletedEmail.template.js";
-
+q
 dotenv.config();
 
 const TEST_EMAIL = "zohaib@thesoftaims.com";

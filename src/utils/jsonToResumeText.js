@@ -12,6 +12,14 @@ export function convertJsonToResumeText(jsonData) {
   if (jsonData.phone) text += `${jsonData.phone}\n`;
   if (jsonData.location) text += `${jsonData.location}\n`;
   if (jsonData.linkedin) text += `${jsonData.linkedin}\n`;
+
+  // Social Links
+  if (jsonData.socialLinks && Array.isArray(jsonData.socialLinks)) {
+    jsonData.socialLinks.forEach(link => {
+      if (link.url) text += `${link.platform}: ${link.url}\n`;
+    });
+  }
+
   text += '\n';
 
   // Summary/Profile

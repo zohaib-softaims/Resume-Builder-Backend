@@ -29,6 +29,7 @@ import { optimizeResumeForJob } from "../services/jobResumeOptimization.service.
 import { generateCoverLetterForJob } from "../services/coverLetterGeneration.service.js";
 import logger from "../lib/logger.js";
 import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
+import { autoClaimGuestResume } from "../utils/autoClaimHelper.js";
 
 export const scrapJob = catchAsync(async (req, res) => {
   // Check if user has reached the job analysis limit
@@ -40,6 +41,9 @@ export const scrapJob = catchAsync(async (req, res) => {
   }
 
   const { job_url, job_description, resume_id } = req.body;
+
+  // Auto-claim guest resume if applicable
+  await autoClaimGuestResume(resume_id, userId);
 
   // Fetch or use provided job description
   let jobDescription;
