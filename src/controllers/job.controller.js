@@ -65,33 +65,55 @@ export const scrapJob = catchAsync(async (req, res) => {
     } else {
       logger.info("Scraping non-LinkedIn job with Scrapefly", { job_url });
 
-      const jobText = await scrapeJobWithScrapfly(job_url, {
-        renderJs: true,
-        asp: true,
-        proxyPool: "public_datacenter_pool",
-      });
-
-      if (!jobText || jobText.trim().length === 0) {
-        logger.error("Failed to scrape job - empty content received", {
-          job_url,
+      try {
+        const jobText = await scrapeJobWithScrapfly(job_url, {
+          renderJs: true,
+          asp: true,
+          proxyPool: "public_datacenter_pool",
         });
-        throw new AppError(500, "Failed to scrape job posting.");
+
+        if (!jobText || jobText.trim().length === 0) {
+          logger.error("Failed to scrape job - empty content received", {
+            job_url,
+          });
+          throw new AppError(
+            422,
+            "Due to some reasons we are unable to fetch job details from the provided URL."
+          );
+        }
+
+        logger.info("Successfully scraped job with Scrapefly", {
+          job_url,
+          textLength: jobText.length,
+        });
+
+        const jobDescPrompt = jobDescriptionPrompt(jobText);
+        jobDescription = await getLLMResponse({
+          systemPrompt: jobDescPrompt,
+          messages: [],
+          model: "gpt-4o-mini",
+        });
+      } catch (error) {
+        // If it's already an AppError, rethrow it
+        if (error instanceof AppError) {
+          throw error;
+        }
+        // Convert scraping errors to 422 (Unprocessable Entity)
+        logger.error("Failed to scrape job URL", {
+          job_url,
+          error: error.message,
+        });
+        throw new AppError(
+          422,
+          "Due to some reasons we are unable to fetch job details from the provided URL. Please try a different link or use the job description field."
+        );
       }
-
-      logger.info("Successfully scraped job with Scrapefly", {
-        job_url,
-        textLength: jobText.length,
-      });
-
-      const jobDescPrompt = jobDescriptionPrompt(jobText);
-      jobDescription = await getLLMResponse({
-        systemPrompt: jobDescPrompt,
-        messages: [],
-        model: "gpt-4o-mini",
-      });
     }
   } else {
-    throw new AppError(400, "Either job_url or job_description must be provided");
+    throw new AppError(
+      400,
+      "Either job_url or job_description must be provided"
+    );
   }
 
   // Fetch resume
@@ -183,7 +205,9 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
   }
 
   const { job_description, job_gap_analysis, resume_id } = job;
-  const parsedGapAnalysis = job_gap_analysis ? JSON.parse(job_gap_analysis) : {};
+  const parsedGapAnalysis = job_gap_analysis
+    ? JSON.parse(job_gap_analysis)
+    : {};
 
   // Fetch resume from database
   const resume = await getResumeById(resume_id);
@@ -270,7 +294,12 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
   }
 
   // Update job record with PDF URLs and store the resume JSON
-  await updateJob(job_id, resumeUploadResult.url, coverLetterUploadResult.url, resumeJson);
+  await updateJob(
+    job_id,
+    resumeUploadResult.url,
+    coverLetterUploadResult.url,
+    resumeJson
+  );
 
   logger.info(
     "Job-based resume optimization and cover letter generation completed successfully",
@@ -310,7 +339,9 @@ export const getJob = catchAsync(async (req, res) => {
   }
 
   // Parse gap analysis from JSON
-  const parsedGapAnalysis = job.job_gap_analysis ? JSON.parse(job.job_gap_analysis) : {};
+  const parsedGapAnalysis = job.job_gap_analysis
+    ? JSON.parse(job.job_gap_analysis)
+    : {};
 
   return res.status(200).json({
     success: true,
@@ -403,17 +434,17 @@ export const deleteJob = catchAsync(async (req, res) => {
   logger.info("Job deleted from database", { job_id });
 
   // Delete S3 files in background (don't await)
-  Promise.all(s3UrlsToDelete.map(url => deleteS3Object(url)))
+  Promise.all(s3UrlsToDelete.map((url) => deleteS3Object(url)))
     .then(() => {
       logger.info("Background S3 cleanup completed", {
         job_id,
-        filesDeleted: s3UrlsToDelete.length
+        filesDeleted: s3UrlsToDelete.length,
       });
     })
-    .catch(error => {
+    .catch((error) => {
       logger.error("Background S3 cleanup failed", {
         job_id,
-        error: error.message
+        error: error.message,
       });
     });
 
@@ -439,7 +470,9 @@ export const getResumeComparisonJson = catchAsync(async (req, res) => {
   }
 
   const { job_description, job_gap_analysis, resume_id } = job;
-  const parsedGapAnalysis = job_gap_analysis ? JSON.parse(job_gap_analysis) : {};
+  const parsedGapAnalysis = job_gap_analysis
+    ? JSON.parse(job_gap_analysis)
+    : {};
 
   // Fetch resume from database
   const resume = await getResumeById(resume_id);
@@ -484,7 +517,10 @@ export const getResumeComparisonJson = catchAsync(async (req, res) => {
   // Generate cover letter in background (non-blocking)
   (async () => {
     try {
-      logger.info("Starting background cover letter generation", { job_id, resume_id });
+      logger.info("Starting background cover letter generation", {
+        job_id,
+        resume_id,
+      });
 
       // Generate cover letter content from optimized resume
       const coverLetterJson = await generateCoverLetterForJob(
@@ -494,16 +530,24 @@ export const getResumeComparisonJson = catchAsync(async (req, res) => {
         resume_id
       );
 
-      logger.info("Generating cover letter PDF in background", { job_id, resume_id });
+      logger.info("Generating cover letter PDF in background", {
+        job_id,
+        resume_id,
+      });
 
       // Generate cover letter PDF
-      const coverLetterHtml = coverLetterHtmlTemplate(coverLetterJson, optimizedResumeJson);
+      const coverLetterHtml = coverLetterHtmlTemplate(
+        coverLetterJson,
+        optimizedResumeJson
+      );
       const coverLetterPdfBuffer = await generatePDFFromHtml(coverLetterHtml);
 
       logger.info("Uploading cover letter PDF to AWS S3 in background", {
         job_id,
         resume_id,
-        coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(2)} KB`,
+        coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(
+          2
+        )} KB`,
       });
 
       // Upload cover letter PDF to AWS S3
@@ -515,22 +559,32 @@ export const getResumeComparisonJson = catchAsync(async (req, res) => {
       });
 
       if (!coverLetterUploadResult.success) {
-        logger.error("Failed to upload cover letter PDF to AWS S3 in background", {
-          job_id,
-          resume_id,
-          error: coverLetterUploadResult.error || "S3 upload failed",
-        });
+        logger.error(
+          "Failed to upload cover letter PDF to AWS S3 in background",
+          {
+            job_id,
+            resume_id,
+            error: coverLetterUploadResult.error || "S3 upload failed",
+          }
+        );
         return;
       }
 
       // Update job record with optimized resume JSON and cover letter URL (no resume PDF yet)
-      await updateJob(job_id, null, coverLetterUploadResult.url, optimizedResumeJson);
+      await updateJob(
+        job_id,
+        null,
+        coverLetterUploadResult.url,
+        optimizedResumeJson
+      );
 
       logger.info("Background cover letter generation completed successfully", {
         job_id,
         resume_id,
         coverLetterUrl: coverLetterUploadResult.url,
-        coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(2)} KB`,
+        coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(
+          2
+        )} KB`,
       });
     } catch (error) {
       logger.error("Error in background cover letter generation", {
@@ -563,7 +617,10 @@ export const generateResumeFromJson = catchAsync(async (req, res) => {
   });
 
   // Generate resume PDF
-  const resumePdfBuffer = await generateResumePDF(resume_json, resumeHtmlTemplate);
+  const resumePdfBuffer = await generateResumePDF(
+    resume_json,
+    resumeHtmlTemplate
+  );
 
   // Check if cover letter exists, if not generate it
   let coverLetterUrl = job.cover_letterUrl;
@@ -583,13 +640,18 @@ export const generateResumeFromJson = catchAsync(async (req, res) => {
     );
 
     // Generate cover letter PDF
-    const coverLetterHtml = coverLetterHtmlTemplate(coverLetterJson, resume_json);
+    const coverLetterHtml = coverLetterHtmlTemplate(
+      coverLetterJson,
+      resume_json
+    );
     const coverLetterPdfBuffer = await generatePDFFromHtml(coverLetterHtml);
 
     logger.info("Uploading cover letter PDF to AWS S3", {
       job_id,
       resume_id: job.resume_id,
-      coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(2)} KB`,
+      coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(
+        2
+      )} KB`,
     });
 
     // Upload cover letter PDF to AWS S3
@@ -636,23 +698,15 @@ export const generateResumeFromJson = catchAsync(async (req, res) => {
   }
 
   // Update job record with new resume PDF URL, cover letter URL, and store the resume JSON
-  await updateJob(
-    job_id,
-    resumeUploadResult.url,
-    coverLetterUrl,
-    resume_json
-  );
+  await updateJob(job_id, resumeUploadResult.url, coverLetterUrl, resume_json);
 
-  logger.info(
-    "Resume generation from JSON completed successfully",
-    {
-      job_id,
-      resume_id: job.resume_id,
-      resumePdfUrl: resumeUploadResult.url,
-      coverLetterPdfUrl: coverLetterUrl,
-      resumePdfSize: `${(resumePdfBuffer.length / 1024).toFixed(2)} KB`,
-    }
-  );
+  logger.info("Resume generation from JSON completed successfully", {
+    job_id,
+    resume_id: job.resume_id,
+    resumePdfUrl: resumeUploadResult.url,
+    coverLetterPdfUrl: coverLetterUrl,
+    resumePdfSize: `${(resumePdfBuffer.length / 1024).toFixed(2)} KB`,
+  });
 
   res.status(200).json({
     success: true,
