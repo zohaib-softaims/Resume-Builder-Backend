@@ -183,14 +183,20 @@ export function resumeHtmlTemplate(resume) {
     </style>
   `;
 
-  const formatList = (items) => items?.map((i) => `<li>${i}</li>`).join("") || "";
+  const formatList = (items) =>
+    items?.map((i) => `<li>${i}</li>`).join("") || "";
 
   // Build contact info array with social links
-  const contactInfo = [resume.email, resume.phone, resume.linkedin, resume.location].filter(Boolean);
+  const contactInfo = [
+    resume.email,
+    resume.phone,
+    resume.linkedin,
+    resume.location,
+  ].filter(Boolean);
 
   // Add social links if available
   if (resume.socialLinks && Array.isArray(resume.socialLinks)) {
-    resume.socialLinks.forEach(link => {
+    resume.socialLinks.forEach((link) => {
       if (link.url) {
         contactInfo.push(link.url);
       }
@@ -252,8 +258,14 @@ export function resumeHtmlTemplate(resume) {
           (exp) => `
         <div class="entry">
           <div class="subheading">${exp.position} at ${exp.company}</div>
-          <div class="meta">${exp.years}${exp.location ? " | " + exp.location : ""}</div>
-          ${exp.description_points?.length ? `<ul>${formatList(exp.description_points)}</ul>` : ""}
+          <div class="meta">${exp.years}${
+            exp.location ? " | " + exp.location : ""
+          }</div>
+          ${
+            exp.description_points?.length
+              ? `<ul>${formatList(exp.description_points)}</ul>`
+              : ""
+          }
         </div>
       `
         )
@@ -274,10 +286,22 @@ export function resumeHtmlTemplate(resume) {
         <div class="entry">
           <div class="project-header">
             <div class="project-title">${proj.title}</div>
-            ${proj.link ? `<div class="project-link"><a href="${proj.link}" target="_blank">${proj.link}</a></div>` : ""}
+            ${
+              proj.link
+                ? `<div class="project-link"><a href="${proj.link}" target="_blank">${proj.link}</a></div>`
+                : ""
+            }
           </div>
-          ${proj.tech_stack?.length ? `<div class="tech-stack">${proj.tech_stack.join(", ")}</div>` : ""}
-          ${proj.description_points?.length ? `<ul>${formatList(proj.description_points)}</ul>` : ""}
+          ${
+            proj.tech_stack?.length
+              ? `<div class="tech-stack">${proj.tech_stack.join(", ")}</div>`
+              : ""
+          }
+          ${
+            proj.description_points?.length
+              ? `<ul>${formatList(proj.description_points)}</ul>`
+              : ""
+          }
         </div>
       `
         )
@@ -297,7 +321,9 @@ export function resumeHtmlTemplate(resume) {
           (edu) => `
         <div class="entry">
           <div class="subheading">${edu.degree}</div>
-          <div class="meta">${edu.institution}${edu.location ? " | " + edu.location : ""} (${edu.years})</div>
+          <div class="meta">${edu.institution}${
+            edu.location ? " | " + edu.location : ""
+          } (${edu.years})</div>
         </div>
       `
         )
@@ -336,9 +362,15 @@ export function resumeHtmlTemplate(resume) {
         .map(
           (cert) => `
         <div class="entry">
-          <div class="subheading">${cert.name}${cert.year ? ` (${cert.year})` : ""}</div>
+          <div class="subheading">${cert.name}${
+            cert.year ? ` (${cert.year})` : ""
+          }</div>
           <div class="meta">${cert.issuer}</div>
-          ${cert.description_points?.length ? `<ul>${formatList(cert.description_points)}</ul>` : ""}
+          ${
+            cert.description_points?.length
+              ? `<ul>${formatList(cert.description_points)}</ul>`
+              : ""
+          }
         </div>
       `
         )
@@ -357,9 +389,15 @@ export function resumeHtmlTemplate(resume) {
         .map(
           (award) => `
         <div class="entry">
-          <div class="subheading">${award.title}${award.year ? ` (${award.year})` : ""}</div>
+          <div class="subheading">${award.title}${
+            award.year ? ` (${award.year})` : ""
+          }</div>
           <div class="meta">${award.issuer}</div>
-          ${award.description_points?.length ? `<ul>${formatList(award.description_points)}</ul>` : ""}
+          ${
+            award.description_points?.length
+              ? `<ul>${formatList(award.description_points)}</ul>`
+              : ""
+          }
         </div>
       `
         )
@@ -375,7 +413,9 @@ export function resumeHtmlTemplate(resume) {
       <h2>Languages</h2>
       <hr />
       <div class="languages-grid">
-        ${resume.languages.map((language) => `<span class="language-tag">${language}</span>`).join("")}
+        ${resume.languages
+          .map((language) => `<span class="language-tag">${language}</span>`)
+          .join("")}
       </div>
     </div>`
       : ""
