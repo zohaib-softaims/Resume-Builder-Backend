@@ -197,6 +197,13 @@ export const parseResume = catchAsync(async (req, res) => {
 
   logger.info("Resume processed successfully", { resume_id: resumeId, isGuest });
 
+  // Extract name and email from resumeJson or parsedAnalysis
+  // For file uploads, resumeJson is null initially, so use parsedAnalysis
+  const name = resumeJson?.name || parsedAnalysis?.name || null;
+  const email = resumeJson?.email || parsedAnalysis?.email || null;
+
+  logger.info("Extracted name and email", { name, email, source: resumeJson ? 'resumeJson' : 'parsedAnalysis' });
+
   res.status(200).json({
     success: true,
     message: isGuest ? "Resume analyzed successfully. Sign up to optimize and save!" : "Resume analyzed successfully",
@@ -204,6 +211,8 @@ export const parseResume = catchAsync(async (req, res) => {
       resume_id: response.id,
       resume_analysis: parsedAnalysis,
       resume_url: uploadedResumeUrl,
+      name,
+      email,
       isGuest,
       expires_at: expiresAt,
     },

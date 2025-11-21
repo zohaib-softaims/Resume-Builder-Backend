@@ -12,11 +12,15 @@ ${resumeText}
 
 **Evaluation Dimensions**:
 
-1. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus.
-2. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
-3. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
-4. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
-5. **Resume Analysis:**
+1. **Personal Information:**
+   - Extract the candidate's **name** (full name if available)
+   - Extract the candidate's **email** address
+
+2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus.
+3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
+4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
+5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
+6. **Resume Analysis:**
    - **Strengths:**  
      Identify 3–5 key strengths that make this resume stand out.  
      Focus on elements that genuinely enhance credibility, clarity, or hiring appeal.  
@@ -33,20 +37,26 @@ ${resumeText}
        - Suggest a constructive, content-level improvement.  
      The critique should sound like that of a professional resume consultant giving practical, actionable feedback not a mechanical checklist.
 
-6. **Keyword Analysis:**  
-   Perform an in-depth, intelligent keyword assessment based on the resume’s domain and context.  
-   You should infer the candidate’s likely target roles or industries by analyzing the content, titles, and skills mentioned in the resume.  
+7. **Keyword Analysis:**
+   Perform an in-depth, intelligent keyword assessment based on the resume's domain and context.
+   You should infer the candidate's likely target roles or industries by analyzing the content, titles, and skills mentioned in the resume.
    Then, using your understanding of real-world job market expectations (as reflected in top job boards like LinkedIn or Indeed), identify:
-   - Which critical industry or role-specific keywords are missing or underrepresented.  
-   - Which skills, tools, certifications, or domain terms would significantly increase the resume’s visibility in ATS and recruiter searches.  
-   - Don’t output arbitrary keyword lists — only relevant, contextually justified keywords that make the resume more competitive in real job searches.  
-  
+   - Which critical industry or role-specific keywords are missing or underrepresented.
+   - Which skills, tools, certifications, or domain terms would significantly increase the resume's visibility in ATS and recruiter searches.
+   - Don't output arbitrary keyword lists — only relevant, contextually justified keywords that make the resume more competitive in real job searches.
+
 `;
 };
 
 export const resumeAnalysisSchema = {
   type: "object",
   properties: {
+    name: {
+      type: "string",
+    },
+    email: {
+      type: "string",
+    },
     overall_resume_score: {
       type: "number",
       minimum: 0,
@@ -98,6 +108,8 @@ export const resumeAnalysisSchema = {
     },
   },
   required: [
+    "name",
+    "email",
     "overall_resume_score",
     "ats_compatibility",
     "keyword_optimization",

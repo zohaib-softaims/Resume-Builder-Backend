@@ -1,13 +1,12 @@
-import { AppError } from "./error.js";
 import { getResumeById, updateResume, getResumeCountByUserId } from "../services/resume.service.js";
-import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
+import { USER_LIMITS } from "../config/limits.config.js";
 import logger from "../lib/logger.js";
 
 /**
  * Auto-claim a guest resume for an authenticated user
+ * Silently skips if any issues occur (expired, limit reached, etc.)
  * @param {string} resumeId - The resume ID to claim
  * @param {string} userId - The user ID claiming the resume
- * @throws {AppError} If resume is expired or user has reached limit
  */
 export async function autoClaimGuestResume(resumeId, userId) {
   if (!userId || !resumeId) return;
@@ -16,15 +15,16 @@ export async function autoClaimGuestResume(resumeId, userId) {
 
   // Only claim if: resume exists + no owner + not expired
   if (resume && !resume.user_id) {
-    // Check if expired
+    // Check if expired - silently skip
     if (resume.expires_at && new Date() > new Date(resume.expires_at)) {
-      throw new AppError(410, "Guest resume has expired. Please upload again.");
+      return;
     }
 
-    // Check user resume limit
+    // Check user resume limit - silently skip if limit reached
     const userResumeCount = await getResumeCountByUserId(userId);
     if (userResumeCount >= USER_LIMITS.MAX_RESUMES_PER_USER) {
-      throw new AppError(429, LIMIT_ERROR_MESSAGES.RESUME_LIMIT_EXCEEDED);
+
+      return;
     }
 
     // Auto-claim the resume

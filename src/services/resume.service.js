@@ -48,6 +48,7 @@ export const getResumesByUserId = async (user_id, limit = null) => {
       resume_fileUrl: true,
       optimized_resumeUrl: true,
       resume_analysis_score: true,
+      resume_json: true,
       createdAt: true,
       updatedAt: true,
     },
