@@ -198,6 +198,10 @@ export const optimizeResumeForJob = async (
     achievements: achievementsAwardsWrapper.achievements || [],
     awards: achievementsAwardsWrapper.awards || [],
     interests: [],
+    // Include social links only if they exist and are not empty
+    ...(personalInfo.socialLinks && personalInfo.socialLinks.length > 0 && {
+      socialLinks: personalInfo.socialLinks
+    }),
   };
 
   return resumeJson;

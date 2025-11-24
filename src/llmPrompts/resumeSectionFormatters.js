@@ -21,7 +21,8 @@ ${originalResumeText}
 - Extract any social media links or platforms mentioned (Instagram, GitHub, Portfolio, etc.)
 - For social links, look for patterns like "Instagram: url", "GitHub: url", "Portfolio: url"
 - Use exact information found in the text
-- If not found, use placeholder "Your Name", "your@email.com", etc.
+- If contact info not found, use placeholder "Your Name", "your@email.com", etc.
+- IMPORTANT: For socialLinks array, ONLY include links that are actually present in the resume. If no social links are found, return an empty array []
 - Return ONLY JSON, no additional text
 
 **Required JSON Format**:
