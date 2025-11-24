@@ -7,7 +7,10 @@ import { getLLMResponse } from "../lib/llmConfig.js";
 import { generateSuggestionsPrompt } from "../llmPrompts/suggestionPrompts.js";
 import { suggestionOpenAISchema } from "../schemas/suggestionSchemas.js";
 import { generateCoverLetterForJob } from "../services/coverLetterGeneration.service.js";
-import { generateResumePDF, generatePDFFromHtml } from "../utils/pdfGenerator.js";
+import {
+  generateResumePDF,
+  generatePDFFromHtml,
+} from "../utils/pdfGenerator.js";
 import { resumeHtmlTemplate } from "../utils/resumeTemplate.js";
 import { coverLetterHtmlTemplate } from "../utils/coverLetterTemplate.js";
 import { s3Uploader } from "../utils/s3Uploader.js";
@@ -41,9 +44,12 @@ export const generateSuggestionsHandler = async (req, res) => {
     const existingSuggestions = await getSuggestionsByJobId(job_id);
 
     if (existingSuggestions) {
-      logger.info("Suggestions already exist in database, returning cached version", {
-        job_id,
-      });
+      logger.info(
+        "Suggestions already exist in database, returning cached version",
+        {
+          job_id,
+        }
+      );
 
       // Parse suggestions data
       const suggestionsData =
@@ -104,7 +110,6 @@ export const generateSuggestionsHandler = async (req, res) => {
     // Parse the JSON response
     const response = JSON.parse(responseString);
 
-  
     // Add unique IDs to each suggestion
     const suggestionsWithIds = response.suggestions.map((suggestion) => ({
       id: cuid(),
@@ -281,7 +286,10 @@ export const optimizeWithAcceptedSuggestionsHandler = async (req, res) => {
     logger.info("Generating PDFs", { job_id });
 
     // Generate cover letter HTML
-    const coverLetterHtml = coverLetterHtmlTemplate(coverLetterJson, optimizedResumeJson);
+    const coverLetterHtml = coverLetterHtmlTemplate(
+      coverLetterJson,
+      optimizedResumeJson
+    );
 
     // Generate PDFs in parallel
     const [resumePDFBuffer, coverLetterPDFBuffer] = await Promise.all([
@@ -340,14 +348,11 @@ export const optimizeWithAcceptedSuggestionsHandler = async (req, res) => {
       }),
     ]);
 
-    logger.info(
-      "Resume optimization with suggestions completed successfully",
-      {
-        job_id,
-        resume_url: resumeUrl,
-        cover_letter_url: coverLetterUrl,
-      }
-    );
+    logger.info("Resume optimization with suggestions completed successfully", {
+      job_id,
+      resume_url: resumeUrl,
+      cover_letter_url: coverLetterUrl,
+    });
 
     return res.status(200).json({
       success: true,
