@@ -12,7 +12,6 @@ const s3 = new S3Client({
 
 export const s3Uploader = async (file, customPath = null) => {
   try {
-    console.log("s3 file is", file.originalname);
 
     let fileName;
     if (customPath) {

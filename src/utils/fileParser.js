@@ -14,8 +14,7 @@ const parsePdfWithRetries = async (fileBuffer) => {
     try {
       logger.info(`Parsing PDF file (attempt ${attempt})`);
       const parsed = await pdfParse(fileBuffer);
-      console.log("Parsed PDF text length:", parsed.text.length);
-      console.log("parsing atttempt", attempt);
+
       return parsed;
     } catch (error) {
       lastError = error;
