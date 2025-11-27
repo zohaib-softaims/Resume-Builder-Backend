@@ -338,7 +338,7 @@ export const getResume = catchAsync(async (req, res) => {
   logger.info("Fetching resume details", { resume_id, userId });
 
   // Auto-claim if authenticated user accessing guest resume
-  await autoClaimGuestResume(resume_id, userId);
+  const claimResult = await autoClaimGuestResume(resume_id, userId);
 
   const resume = await getResumeById(resume_id);
 
@@ -348,6 +348,11 @@ export const getResume = catchAsync(async (req, res) => {
 
   // Verify user owns this resume
   if (resume.user_id !== userId) {
+    // Check if the claim failed due to resume limit
+    if (claimResult?.reason === 'limit_reached') {
+      throw new AppError(403, "You have reached the maximum limit of resumes");
+    }
+    // Generic permission error
     throw new AppError(403, "You don't have permission to access this resume");
   }
 
