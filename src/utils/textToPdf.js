@@ -47,6 +47,26 @@ export const convertTextToPDF = async (text, filename = "Resume") => {
  * @returns {Promise<Buffer>} PDF buffer
  */
 export const convertFormattedHtmlToPDF = async (htmlContent, filename = "Resume") => {
+  // Remove icon Unicode characters from content
+  let cleanedContent = htmlContent;
+
+  // Remove common icon Unicode characters and ranges
+  cleanedContent = cleanedContent
+    // Remove emoji and symbols (U+1F300 to U+1F9FF)
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    // Remove miscellaneous symbols (U+2600 to U+26FF)
+    .replace(/[\u2600-\u26FF]/g, '')
+    // Remove dingbats (U+2700 to U+27BF)
+    .replace(/[\u2700-\u27BF]/g, '')
+    // Remove miscellaneous symbols and arrows (U+2B00 to U+2BFF)
+    .replace(/[\u2B00-\u2BFF]/g, '')
+    // Remove geometric shapes (U+25A0 to U+25FF)
+    .replace(/[\u25A0-\u25FF]/g, '')
+    // Remove Font Awesome private use area (U+F000 to U+F8FF)
+    .replace(/[\uF000-\uF8FF]/g, '')
+    // Remove Material Icons private use area (U+E000 to U+F8FF)
+    .replace(/[\uE000-\uF8FF]/g, '');
+
   // Use the same styling as resumeTemplate.js for consistency
   const html = `
     <!DOCTYPE html>
@@ -135,18 +155,23 @@ export const convertFormattedHtmlToPDF = async (htmlContent, filename = "Resume"
           text-decoration: none;
         }
 
-        /* Make icons/symbols much smaller and less prominent */
-        body::before {
-          content: '';
-        }
-
-        /* Target common icon fonts and symbols */
+        /* Completely hide all icons and symbols */
         [class*="icon"],
         [class*="fa-"],
+        [class*="Icon"],
         .material-icons,
-        .glyphicon {
-          font-size: 8px;
-          opacity: 0.3;
+        .glyphicon,
+        svg,
+        img[alt*="icon" i],
+        img[src*="icon" i],
+        span[role="img"],
+        i[class*="icon" i] {
+          display: none !important;
+        }
+
+        /* Hide emoji and special unicode symbols */
+        .emoji {
+          display: none !important;
         }
       </style>
     </head>
