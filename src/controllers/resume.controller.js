@@ -1,7 +1,12 @@
 import { catchAsync, AppError } from "../utils/error.js";
 import { parseResumeFile } from "../utils/fileParser.js";
 import { sanitizedText } from "../utils/sanitizedText.js";
-import { resumeAnalysisPrompt, resumeAnalysisPromptWithContext, resumeAnalysisSchema } from "../llmPrompts/resumeAnalysisPrompt.js";
+import {
+  resumeAnalysisPrompt,
+  resumeAnalysisPromptWithOptimizedResume,
+  resumeAnalysisPromptWithContext,
+  resumeAnalysisSchema,
+} from "../llmPrompts/resumeAnalysisPrompt.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
 import { s3Uploader, deleteS3Object } from "../utils/s3Uploader.js";
 import {
@@ -261,6 +266,9 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const { resume_text, resume_analysis } = resume;
   const parsedAnalysis = resume_analysis ? JSON.parse(resume_analysis) : {};
 
+  // Use resume_text from database (same format as stored in parseResume)
+  const originalResumeTextForContext = sanitizedText(resume_text);
+
   // Optimize resume content using service
   const resumeJson = await optimizeResumeContent(resume_text, parsedAnalysis, resume_id);
 
@@ -298,6 +306,24 @@ export const optimizeResume = catchAsync(async (req, res) => {
 
   // Update resume record with the optimized PDF URL
   await updateResume(resume_id, { optimized_resumeUrl: uploadResult.url });
+
+  // Parse optimized PDF the same way parseResume handles file uploads
+  // This ensures both have the same sanitized text format
+  const optimizedResumeText = sanitizedText(await parseResumeFile(pdfBuffer, "application/pdf"));
+
+  let optimizedAnalysis = null;
+  // Use original resume text from database for context (same format as stored in parseResume)
+  const systemPrompt = resumeAnalysisPromptWithOptimizedResume(optimizedResumeText, originalResumeTextForContext, resume_analysis);
+
+  optimizedAnalysis = await getLLMResponse({
+    systemPrompt,
+    messages: [],
+    responseSchema: resumeAnalysisSchema,
+    schemaName: "resume_analysis",
+  });
+
+  // Store optimized resume in Pinecone (non-blocking)
+  await storeResume(resume_id, optimizedResumeText, optimizedAnalysis);
 
   logger.info("Resume optimization and PDF generation completed successfully", {
     resume_id,
