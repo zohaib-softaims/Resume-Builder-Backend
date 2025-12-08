@@ -1,10 +1,7 @@
 import { catchAsync, AppError } from "../utils/error.js";
 import { parseResumeFile } from "../utils/fileParser.js";
 import { sanitizedText } from "../utils/sanitizedText.js";
-import {
-  resumeAnalysisPrompt,
-  resumeAnalysisSchema,
-} from "../llmPrompts/resumeAnalysisPrompt.js";
+import { resumeAnalysisPrompt, resumeAnalysisPromptWithContext, resumeAnalysisSchema } from "../llmPrompts/resumeAnalysisPrompt.js";
 import { getLLMResponse } from "../lib/llmConfig.js";
 import { s3Uploader, deleteS3Object } from "../utils/s3Uploader.js";
 import {
@@ -25,6 +22,7 @@ import { extractOriginalFileName } from "../utils/fileUtils.js";
 import { convertTextToPDF } from "../utils/textToPdf.js";
 import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
 import { autoClaimGuestResume } from "../utils/autoClaimHelper.js";
+import { getRelevantResume, storeResume } from "../lib/pineconeResumeStore.js";
 
 export const parseResume = catchAsync(async (req, res) => {
   const userId = req.auth?.userId; // Optional - can be guest
@@ -38,7 +36,7 @@ export const parseResume = catchAsync(async (req, res) => {
     }
   }
 
-  let resumeText = '';
+  let resumeText = "";
   let uploadedResumeUrl = null;
   let resumeJson = null;
 
@@ -61,7 +59,7 @@ export const parseResume = catchAsync(async (req, res) => {
     // Upload PDF to S3
     const mockFile = {
       buffer: pdfBuffer,
-      originalname: `${resumeJson.name || 'resume'}-form-created.pdf`,
+      originalname: `${resumeJson.name || "resume"}-form-created.pdf`,
       mimetype: "application/pdf",
       size: pdfBuffer.length,
     };
@@ -75,13 +73,12 @@ export const parseResume = catchAsync(async (req, res) => {
 
     uploadedResumeUrl = uploadResult.url;
     logger.info("PDF generated and uploaded successfully", { url: uploadedResumeUrl });
-
   }
   // Handle file upload (PDF/DOCX/TXT)
   else if (req.isFileUpload) {
     logger.info("Processing uploaded resume file", {
       filename: req.file.originalname,
-      mimetype: req.file.mimetype
+      mimetype: req.file.mimetype,
     });
 
     // Parse file based on type (PDF, DOCX, or TXT)
@@ -101,19 +98,19 @@ export const parseResume = catchAsync(async (req, res) => {
 
       fileToUpload = {
         buffer: pdfBuffer,
-        originalname: req.file.originalname.replace(/\.txt$/i, '.pdf'),
+        originalname: req.file.originalname.replace(/\.txt$/i, ".pdf"),
         mimetype: "application/pdf",
         size: pdfBuffer.length,
       };
 
       logger.info("Successfully converted TXT to PDF", {
         newFilename: fileToUpload.originalname,
-        pdfSize: pdfBuffer.length
+        pdfSize: pdfBuffer.length,
       });
     } else {
       logger.info("Uploading file without conversion", {
         filename: req.file.originalname,
-        mimetype: req.file.mimetype
+        mimetype: req.file.mimetype,
       });
     }
 
@@ -122,15 +119,38 @@ export const parseResume = catchAsync(async (req, res) => {
     uploadedResumeUrl = uploadResult.success ? uploadResult.url : null;
   }
 
-  // Analyze resume text using LLM (same for both file and JSON)
-  logger.info("Analyzing resume with LLM");
-  const systemPrompt = resumeAnalysisPrompt(resumeText);
-  let analysis = await getLLMResponse({
-    systemPrompt,
-    messages: [],
-    responseSchema: resumeAnalysisSchema,
-    schemaName: "resume_analysis",
-  });
+  // Check Pinecone for existing resume analysis before calling LLM
+  let analysis = null;
+  const relevantResumeFromPinecone = await getRelevantResume(resumeText);
+
+  if (relevantResumeFromPinecone && relevantResumeFromPinecone.score >= 1 && relevantResumeFromPinecone.resumeAnalysis) {
+    analysis = relevantResumeFromPinecone.resumeAnalysis;
+  } else if (
+    relevantResumeFromPinecone &&
+    relevantResumeFromPinecone.score >= 0.9 &&
+    relevantResumeFromPinecone.score < 1 &&
+    relevantResumeFromPinecone.resumeId
+  ) {
+    // Use resume text from Pinecone metadata
+    const systemPrompt = resumeAnalysisPromptWithContext(resumeText, relevantResumeFromPinecone.resumeText, relevantResumeFromPinecone.resumeAnalysis);
+    console.log("system prompt", systemPrompt);
+    analysis = await getLLMResponse({
+      systemPrompt,
+      messages: [],
+      responseSchema: resumeAnalysisSchema,
+      schemaName: "resume_analysis",
+    });
+  } else {
+    // Analyze resume text using LLM normally (score < 0.9 or no match)
+
+    const systemPrompt = resumeAnalysisPrompt(resumeText);
+    analysis = await getLLMResponse({
+      systemPrompt,
+      messages: [],
+      responseSchema: resumeAnalysisSchema,
+      schemaName: "resume_analysis",
+    });
+  }
 
   // The response is guaranteed to be valid JSON matching the schema
   const parsedAnalysis = analysis ? JSON.parse(analysis) : {};
@@ -158,6 +178,11 @@ export const parseResume = catchAsync(async (req, res) => {
   );
 
   const resumeId = response.id;
+
+  // Store resume in Pinecone vector database only if no exact match was found (score < 1)
+  if (!relevantResumeFromPinecone || relevantResumeFromPinecone.score < 1) {
+    await storeResume(resumeId, resumeText, analysis);
+  }
 
   // If file was uploaded, convert to JSON in background
   if (req.isFileUpload) {
@@ -189,7 +214,7 @@ export const parseResume = catchAsync(async (req, res) => {
   const name = resumeJson?.name || parsedAnalysis?.name || null;
   const email = resumeJson?.email || parsedAnalysis?.email || null;
 
-  logger.info("Extracted name and email", { name, email, source: resumeJson ? 'resumeJson' : 'parsedAnalysis' });
+  logger.info("Extracted name and email", { name, email, source: resumeJson ? "resumeJson" : "parsedAnalysis" });
 
   res.status(200).json({
     success: true,
@@ -237,11 +262,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
   const parsedAnalysis = resume_analysis ? JSON.parse(resume_analysis) : {};
 
   // Optimize resume content using service
-  const resumeJson = await optimizeResumeContent(
-    resume_text,
-    parsedAnalysis,
-    resume_id
-  );
+  const resumeJson = await optimizeResumeContent(resume_text, parsedAnalysis, resume_id);
 
   logger.info("Generating PDF from optimized resume", { resume_id });
 
@@ -336,7 +357,7 @@ export const getResume = catchAsync(async (req, res) => {
   // Verify user owns this resume
   if (resume.user_id !== userId) {
     // Check if the claim failed due to resume limit
-    if (claimResult?.reason === 'limit_reached') {
+    if (claimResult?.reason === "limit_reached") {
       throw new AppError(403, "You have reached the maximum limit of resumes");
     }
     // Generic permission error
@@ -401,7 +422,7 @@ export const deleteResume = catchAsync(async (req, res) => {
   // Get all jobs associated with this resume to delete their S3 files too
   const jobs = resume.jobs || [];
 
-  jobs.forEach(job => {
+  jobs.forEach((job) => {
     if (job.optimized_resumeUrl) {
       s3UrlsToDelete.push(job.optimized_resumeUrl);
     }
@@ -416,17 +437,17 @@ export const deleteResume = catchAsync(async (req, res) => {
   logger.info("Resume deleted from database", { resume_id });
 
   // Delete S3 files in background (don't await)
-  Promise.all(s3UrlsToDelete.map(url => deleteS3Object(url)))
+  Promise.all(s3UrlsToDelete.map((url) => deleteS3Object(url)))
     .then(() => {
       logger.info("Background S3 cleanup completed", {
         resume_id,
-        filesDeleted: s3UrlsToDelete.length
+        filesDeleted: s3UrlsToDelete.length,
       });
     })
-    .catch(error => {
+    .catch((error) => {
       logger.error("Background S3 cleanup failed", {
         resume_id,
-        error: error.message
+        error: error.message,
       });
     });
 
