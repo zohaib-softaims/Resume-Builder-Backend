@@ -16,21 +16,33 @@ ${resumeText}
    - Extract the candidate's **name** (full name if available)
    - Extract the candidate's **email** address
 
-2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus.
-3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
-4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
-5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
+2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus. **MAXIMUM SCORE: 98** (nothing is perfect, so never score 100 or 99).
+
+3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system. **MAXIMUM SCORE: 98**.
+
+4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS. **MAXIMUM SCORE: 98**.
+
+5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%"). **MAXIMUM SCORE: 98**.
+
 6. **Resume Analysis:**
    - **Strengths:**  
-     Identify 3–5 key strengths that make this resume stand out.  
+     Identify key strengths that make this resume stand out. The number of strengths should be DEPENDENT on the overall resume score:
+     - If overall score is 90-98: Identify 6-7 key strengths (high-scoring resumes have more strengths)
+     - If overall score is 80-89: Identify 4-5 key strengths
+     - If overall score is 70-79: Identify 2-3 key strengths
+     - If overall score is below 70: Identify 1-2 key strengths
      Focus on elements that genuinely enhance credibility, clarity, or hiring appeal.  
      Each strength must be supported by direct evidence or references from the resume text — quote or summarize specific sections that demonstrate these qualities.  
-     Avoid vague or surface-level comments like “good formatting” or “well-structured.” Instead, explain *why* each identified strength adds value and *how* it benefits the candidate’s positioning.
+     Avoid vague or surface-level comments like "good formatting" or "well-structured." Instead, explain *why* each identified strength adds value and *how* it benefits the candidate's positioning.
 
    - **Weaknesses:**  
-     Identify 3–5 substantial weaknesses that limit the resume’s effectiveness or clarity.  
+     Identify substantial weaknesses that limit the resume's effectiveness or clarity. The number of weaknesses should be DEPENDENT on the overall resume score:
+     - If overall score is 90-98: Identify 1-2 weaknesses (high-scoring resumes have fewer weaknesses)
+     - If overall score is 80-89: Identify 2-3 weaknesses
+     - If overall score is 70-79: Identify 4-5 weaknesses
+     - If overall score is below 70: Identify 6-7 weaknesses
      The model should independently determine all relevant weaknesses.  
-     Avoid mentioning issues like “too detailed,” “too concise,” or “cluttered formatting.”  
+     Avoid mentioning issues like "too detailed," "too concise," or "cluttered formatting."  
      For each weakness:
        - Explain clearly *why* it weakens the resume.  
        - Reference or quote the exact part of the resume that demonstrates it.  
@@ -78,22 +90,79 @@ ${previousResumeText}
 
 **CRITICAL INSTRUCTIONS FOR SCORING - FOLLOW THIS EXACT PROCESS**:
 
-**STEP 1: COMPARISON CHECK**
-First, carefully compare the current resume with the calibration resume text. Check if they are:
-- Completely identical (same content and no differences at all)
+**STEP 1: THOROUGH COMPARISON CHECK**
+Carefully compare the current resume with the calibration resume text. Check ALL of the following to determine if they are identical:
+- **Text Content**: Is the text exactly the same? (same wording, same descriptions)
+- **Sections**: Are all sections the same? (same section names, same order, same presence/absence)
+- **Skills**: Are the skills identical? (same skills listed, same number of skills)
+- **Experience**: Are work experiences the same? (same companies, same roles, same dates, same descriptions)
+- **Education**: Is education the same? (same institutions, same degrees, same dates)
+- **Certifications**: Are certifications the same? (same certifications, same dates)
+- **Achievements Awards**: Are achievements the same? (same achievements, same descriptions)
 
-**STEP 2: SCORING DECISION**
-
-**IF RESUMES ARE COMPLETELY IDENTICAL OR MERELY HAVE FORMATTING DIFFERENCES:**
+**IF RESUMES ARE COMPLETELY IDENTICAL** (same text, same sections, same skills, same experience - almost no difference at all):
 - Use the EXACT SAME scores as the calibration scores
 - Overall Score: ${previousAnalysis?.overall_resume_score || "N/A"}
 - ATS Compatibility: ${previousAnalysis?.ats_compatibility || "N/A"}
 - Keyword Optimization: ${previousAnalysis?.keyword_optimization || "N/A"}
 - Achievement Focus: ${previousAnalysis?.achievement_focus || "N/A"}
 
-**IF RESUMES HAVE CONTENT DIFFERENCES:**
-  If resume has different skills, different quantifiable achievements, added or removed section, enhanced wording or any difference then update the score from
-  calibration score accordingly.
+**STEP 2: IDENTIFY MINOR DIFFERENCES**
+If resumes are NOT identical, identify the MINOR differences. These differences will typically be small changes such as:
+- **Structural/Format Differences**: Different section ordering, different formatting style, different layout
+- **Different Sections**: Sections added or removed (e.g., added "Projects" section, removed "References")
+- **Skills Changes**: Skills added or removed (e.g., added "Python", removed "Java")
+- **Different Experience**: Experience entries added, removed, or modified (e.g., new job added, job description changed)
+- **Enhanced Writing**: Improved wording, better descriptions, more impactful language, better action verbs
+- **Quantifiable Achievements**: New metrics added, metrics removed, or metrics changed
+- **Certifications**: Certifications added or removed
+
+**STEP 3: EVALUATE IF CHANGES ARE GOOD OR BAD**
+For each minor difference identified, determine if it IMPROVES or WORSENS the resume:
+
+**GOOD CHANGES** (improve resume quality):
+- New relevant skills added → Improves Keyword Optimization
+- Skills removed that were irrelevant → May improve Keyword Optimization (if replaced with better ones)
+- Enhanced writing with better action verbs, clearer descriptions → Improves overall quality
+- New quantifiable achievements added → Improves Achievement Focus
+- Better structured sections → Improves ATS Compatibility
+- New relevant certifications → Improves Keyword Optimization
+- More impactful achievement descriptions → Improves Achievement Focus
+
+**BAD CHANGES** (worsen resume quality):
+- Relevant skills removed → Worsens Keyword Optimization
+- Poor writing or less impactful descriptions → Worsens overall quality
+- Quantifiable achievements removed → Worsens Achievement Focus
+- Poor structure or formatting → Worsens ATS Compatibility
+- Relevant certifications removed → Worsens Keyword Optimization
+- Less impactful achievement descriptions → Worsens Achievement Focus
+
+**STEP 4: ADJUST SCORES BASED ON MINOR CHANGES**
+Since differences are MINOR, make SMALL incremental adjustments (typically 1-3 points):
+
+**For Overall Resume Score:**
+- If changes are GOOD → Increase by 1-3 points from calibration score (${previousAnalysis?.overall_resume_score || "N/A"})
+- If changes are BAD → Decrease by 1-3 points from calibration score
+- If changes are MIXED → Adjust proportionally based on net impact (typically 0-2 points)
+- **MAXIMUM SCORE: 98** (nothing is perfect, so never score 100 or 99)
+
+**For ATS Compatibility:**
+- If structural/format changes are GOOD → Increase by 1-2 points from calibration score (${previousAnalysis?.ats_compatibility || "N/A"})
+- If structural/format changes are BAD → Decrease by 1-2 points from calibration score
+- If no structural/format changes → Keep same as calibration score
+- **MAXIMUM SCORE: 98**
+
+**For Keyword Optimization:**
+- If skills/certifications added are GOOD → Increase by 1-2 points from calibration score (${previousAnalysis?.keyword_optimization || "N/A"})
+- If skills/certifications removed are BAD → Decrease by 1-2 points from calibration score
+- If no skill/certification changes → Keep same as calibration score
+- **MAXIMUM SCORE: 98**
+
+**For Achievement Focus:**
+- If quantifiable achievements added or enhanced → Increase by 1-3 points from calibration score (${previousAnalysis?.achievement_focus || "N/A"})
+- If quantifiable achievements removed or weakened → Decrease by 1-3 points from calibration score
+- If no achievement changes → Keep same as calibration score
+- **MAXIMUM SCORE: 98**
 
 **ANALYSIS WRITING**
 - DO NOT mention the calibration data, previous resume, comparisons, improvements, additions, expansions, or any indication that you have reference material
@@ -113,35 +182,63 @@ ${resumeText}
    - Extract the candidate's **email** address
 
 2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus. 
-   - If resumes are identical → Use calibration score: ${previousAnalysis?.overall_resume_score || "N/A"}
-   - If different → Adjust from calibration score (${
+   - If resumes are completely identical (same text, same sections, same skills, same experience) → Use EXACT calibration score: ${
      previousAnalysis?.overall_resume_score || "N/A"
-   }) based on identified differences (new skills, achievements, certifications, etc.)
+   }
+   - If resumes have MINOR differences → Make SMALL adjustments (1-3 points) from calibration score (${previousAnalysis?.overall_resume_score || "N/A"}):
+     * If minor changes are GOOD (enhanced writing, better achievements, added relevant skills) → Increase by 1-3 points
+     * If minor changes are BAD (removed relevant content, poor writing, removed achievements) → Decrease by 1-3 points
+     * If changes are MIXED → Adjust proportionally based on net impact (typically 0-2 points)
+   **MAXIMUM SCORE: 98** (nothing is perfect, so never score 100 or 99).
 
 3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
-   - If resumes are identical → Use calibration score: ${previousAnalysis?.ats_compatibility || "N/A"}
-   - If different → Adjust from calibration score (${previousAnalysis?.ats_compatibility || "N/A"}) based on formatting/structure changes
+   - If resumes are completely identical → Use EXACT calibration score: ${previousAnalysis?.ats_compatibility || "N/A"}
+   - If resumes have MINOR structural/format differences → Make SMALL adjustments (1-2 points) from calibration score (${
+     previousAnalysis?.ats_compatibility || "N/A"
+   }):
+     * If structural/format changes improve ATS compatibility → Increase by 1-2 points
+     * If structural/format changes worsen ATS compatibility → Decrease by 1-2 points
+     * If no structural/format changes → Keep same as calibration score
+   **MAXIMUM SCORE: 98**.
 
 4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
-   - If resumes are identical → Use calibration score: ${previousAnalysis?.keyword_optimization || "N/A"}
-   - If different → Adjust from calibration score (${previousAnalysis?.keyword_optimization || "N/A"}) based on new/removed skills and certifications
+   - If resumes are completely identical → Use EXACT calibration score: ${previousAnalysis?.keyword_optimization || "N/A"}
+   - If resumes have MINOR skill/certification differences → Make SMALL adjustments (1-2 points) from calibration score (${
+     previousAnalysis?.keyword_optimization || "N/A"
+   }):
+     * If relevant skills/certifications added → Increase by 1-2 points
+     * If relevant skills/certifications removed → Decrease by 1-2 points
+     * If no skill/certification changes → Keep same as calibration score
+   **MAXIMUM SCORE: 98**.
 
 5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
-   - If resumes are identical → Use calibration score: ${previousAnalysis?.achievement_focus || "N/A"}
-   - If different → Adjust from calibration score (${
+   - If resumes are completely identical → Use EXACT calibration score: ${previousAnalysis?.achievement_focus || "N/A"}
+   - If resumes have MINOR achievement differences → Make SMALL adjustments (1-3 points) from calibration score (${
      previousAnalysis?.achievement_focus || "N/A"
-   }) based on new/removed quantifiable achievements and general achievements
+   }):
+     * If quantifiable achievements added or enhanced → Increase by 1-3 points
+     * If quantifiable achievements removed or weakened → Decrease by 1-3 points
+     * If no achievement changes → Keep same as calibration score
+   **MAXIMUM SCORE: 98**.
 
 6. **Resume Analysis:**
    - **Strengths:**  
-     Identify 3–5 key strengths that make this resume stand out.  
+     Identify key strengths that make this resume stand out. The number of strengths should be DEPENDENT on the overall resume score:
+     - If overall score is 90-98: Identify 6-7 key strengths (high-scoring resumes have more strengths)
+     - If overall score is 80-89: Identify 4-5 key strengths
+     - If overall score is 70-79: Identify 2-3 key strengths
+     - If overall score is below 70: Identify 1-2 key strengths
      Focus on elements that genuinely enhance credibility, clarity, or hiring appeal.  
      Each strength must be supported by direct evidence or references from the resume text — quote or summarize specific sections that demonstrate these qualities.  
      Avoid vague or surface-level comments like "good formatting" or "well-structured." Instead, explain *why* each identified strength adds value and *how* it benefits the candidate's positioning.
      **CRITICAL**: Write strengths based ONLY on what is present in the current resume. Do NOT mention additions, improvements, expansions, or compare to anything else.
 
    - **Weaknesses:**  
-     Identify 3–5 substantial weaknesses that limit the resume's effectiveness or clarity.  
+     Identify substantial weaknesses that limit the resume's effectiveness or clarity. The number of weaknesses should be DEPENDENT on the overall resume score:
+     - If overall score is 90-98: Identify 1-2 weaknesses (high-scoring resumes have fewer weaknesses)
+     - If overall score is 80-89: Identify 2-3 weaknesses
+     - If overall score is 70-79: Identify 4-5 weaknesses
+     - If overall score is below 70: Identify 6-7 weaknesses
      The model should independently determine all relevant weaknesses.  
      Avoid mentioning issues like "too detailed," "too concise," or "cluttered formatting."  
      For each weakness:
@@ -201,25 +298,18 @@ ${previousResumeText}
 
 **CRITICAL INSTRUCTIONS FOR SCORING THE OPTIMIZED RESUME**:
 1. The current resume is an OPTIMIZED version that has been improved from the original. It should generally score HIGHER than the original resume scores.
-
-2. Evaluate the optimized resume's quality objectively:
-   - ATS compatibility (formatting, structure, keyword placement)
-   - Keyword optimization (industry-relevant terms, skills, technologies)
-   - Achievement focus (quantified metrics, impact statements, results)
-   - Overall presentation quality
-
-3. Scoring Guidelines:
+2. Scoring Guidelines:
    - The optimized resume typically has MORE keywords, MORE skills, BETTER achievements, MORE quantifiable metrics, and STRONGER ATS compatibility than the original
    - Score it HIGHER than the original scores (typically 2-5 points higher, or more if significantly improved)
    - If the optimized resume shows clear improvements in keywords, achievements, or ATS compatibility → Score it HIGHER
-   - Only score it lower or similar if the optimization actually made it worse (which is rare)
    - Always ensure: Optimized resume quality improvements = Higher scores than original
+   - **CRITICAL**: Maximum score cap is 98. Nothing is perfect, so scores should never exceed 98 (even if the resume appears flawless, cap it at 98)
 
-4. Maintain reasonable score increases: If original was 85, optimized should typically be 87-90 or higher if significantly improved.
+3. Maintain reasonable score increases: If original was 85, optimized should typically be 87-90 or higher if significantly improved. Remember: Maximum score is 98.
 
-5. DO NOT mention the original resume, comparisons, optimizations, improvements, or any indication that this is an optimized version in your analysis
+4. DO NOT mention the original resume, comparisons, optimizations, improvements, or any indication that this is an optimized version in your analysis
 
-6. Write your analysis as if you are analyzing this resume independently for the first time
+5. Write your analysis as if you are analyzing this resume independently for the first time
 
 ==========================
 **Resume to Analyze**:
@@ -235,30 +325,38 @@ ${resumeText}
 
 2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus. This is an optimized resume, so it should score HIGHER than the original score (${
     previousAnalysis?.overall_resume_score || "N/A"
-  }). Typically score 2-5 points higher, or more if significantly improved.
+  }). Typically score 2-5 points higher, or more if significantly improved. **MAXIMUM SCORE: 98** (nothing is perfect, so never score 100 or 99).
 
 3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system. Optimized resumes typically have better ATS compatibility, so score it HIGHER than the original (${
     previousAnalysis?.ats_compatibility || "N/A"
-  }).
+  }). **MAXIMUM SCORE: 98**.
 
 4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS. Optimized resumes typically have more and better keywords, so score it HIGHER than the original (${
     previousAnalysis?.keyword_optimization || "N/A"
-  }).
+  }). **MAXIMUM SCORE: 98**.
 
 5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%"). Optimized resumes typically have more and better quantified achievements, so score it HIGHER than the original (${
     previousAnalysis?.achievement_focus || "N/A"
-  }).
+  }). **MAXIMUM SCORE: 98**.
 
 6. **Resume Analysis:**
    - **Strengths:**  
-     Identify 3–5 key strengths that make this resume stand out.  
+     Identify key strengths that make this resume stand out. The number of strengths should be DEPENDENT on the overall resume score:
+     - If overall score is 90-98: Identify 6-7 key strengths (high-scoring resumes have more strengths)
+     - If overall score is 80-89: Identify 4-5 key strengths
+     - If overall score is 70-79: Identify 2-3 key strengths
+     - If overall score is below 70: Identify 1-2 key strengths
      Focus on elements that genuinely enhance credibility, clarity, or hiring appeal.  
      Each strength must be supported by direct evidence or references from the resume text — quote or summarize specific sections that demonstrate these qualities.  
      Avoid vague or surface-level comments like "good formatting" or "well-structured." Instead, explain *why* each identified strength adds value and *how* it benefits the candidate's positioning.
      **CRITICAL**: Write strengths based ONLY on what is present in the current resume. Do NOT mention additions, improvements, expansions, or compare to anything else.
 
    - **Weaknesses:**  
-     Identify 3–5 substantial weaknesses that limit the resume's effectiveness or clarity.  
+     Identify substantial weaknesses that limit the resume's effectiveness or clarity. The number of weaknesses should be DEPENDENT on the overall resume score:
+     - If overall score is 90-98: Identify 1-2 weaknesses (high-scoring resumes have fewer weaknesses)
+     - If overall score is 80-89: Identify 2-3 weaknesses
+     - If overall score is 70-79: Identify 4-5 weaknesses
+     - If overall score is below 70: Identify 6-7 weaknesses
      The model should independently determine all relevant weaknesses.  
      Avoid mentioning issues like "too detailed," "too concise," or "cluttered formatting."  
      For each weakness:
