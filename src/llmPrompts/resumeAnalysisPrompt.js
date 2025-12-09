@@ -76,24 +76,29 @@ ${previousResumeText}
 - Keyword Optimization: ${previousAnalysis?.keyword_optimization || "N/A"}
 - Achievement Focus: ${previousAnalysis?.achievement_focus || "N/A"}
 
-**CRITICAL INSTRUCTIONS FOR SCORING**:
-1. First, objectively evaluate the current resume's quality based on:
-   - ATS compatibility (formatting, structure, keyword placement)
-   - Keyword optimization (industry-relevant terms, skills, technologies)
-   - Achievement focus (quantified metrics, impact statements, results)
-   - Overall presentation quality
+**CRITICAL INSTRUCTIONS FOR SCORING - FOLLOW THIS EXACT PROCESS**:
 
-2. Then, use the calibration scores as a reference point:
-   - If the current resume has MORE keywords, MORE Skills, BETTER achievements, MORE Quantifiable Achievements, STRONGER ATS compatibility → Score it HIGHER than calibration score
-   - If the current resume has FEWER keywords, FEWER Skills, WEAKER achievements, LESS Quantifiable Achievements, POORER ATS compatibility → Score it LOWER than calibration score
-   - If quality is SIMILAR → Keep scores equal to calibration score
-   - Always ensure better quality = higher score, worse quality = lower score
+**STEP 1: COMPARISON CHECK**
+First, carefully compare the current resume with the calibration resume text. Check if they are:
+- Completely identical (same content and no differences at all)
 
-3. Maintain consistency: Avoid large score jumps.
+**STEP 2: SCORING DECISION**
 
-4. DO NOT mention the calibration data, previous resume, comparisons, improvements, additions, expansions, or any indication that you have reference material
+**IF RESUMES ARE COMPLETELY IDENTICAL OR MERELY HAVE FORMATTING DIFFERENCES:**
+- Use the EXACT SAME scores as the calibration scores
+- Overall Score: ${previousAnalysis?.overall_resume_score || "N/A"}
+- ATS Compatibility: ${previousAnalysis?.ats_compatibility || "N/A"}
+- Keyword Optimization: ${previousAnalysis?.keyword_optimization || "N/A"}
+- Achievement Focus: ${previousAnalysis?.achievement_focus || "N/A"}
 
-5. Write your analysis as if this is the first and only resume you are analyzing
+**IF RESUMES HAVE CONTENT DIFFERENCES:**
+  If resume has different skills, different quantifiable achievements, added or removed section, enhanced wording or any difference then update the score from
+  calibration score accordingly.
+
+**ANALYSIS WRITING**
+- DO NOT mention the calibration data, previous resume, comparisons, improvements, additions, expansions, or any indication that you have reference material
+- Write your analysis as if this is the first and only resume you are analyzing
+- Never use words like "now includes", "adds", "expanded", "improved", "better than", "compared to", "previously", "addition of", "addressing a gap"
 
 ==========================
 **Resume to Analyze**:
@@ -107,21 +112,25 @@ ${resumeText}
    - Extract the candidate's **name** (full name if available)
    - Extract the candidate's **email** address
 
-2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus. Use calibration score (${
-    previousAnalysis?.overall_resume_score || "N/A"
-  }) as reference - if current resume is better, score higher; if worse, score lower; if similar, keep close.
+2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus. 
+   - If resumes are identical → Use calibration score: ${previousAnalysis?.overall_resume_score || "N/A"}
+   - If different → Adjust from calibration score (${
+     previousAnalysis?.overall_resume_score || "N/A"
+   }) based on identified differences (new skills, achievements, certifications, etc.)
 
-3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system. Compare objectively: more ATS-friendly = higher than calibration (${
-    previousAnalysis?.ats_compatibility || "N/A"
-  }), less ATS-friendly = lower.
+3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
+   - If resumes are identical → Use calibration score: ${previousAnalysis?.ats_compatibility || "N/A"}
+   - If different → Adjust from calibration score (${previousAnalysis?.ats_compatibility || "N/A"}) based on formatting/structure changes
 
-4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS. More/better keywords = higher than calibration (${
-    previousAnalysis?.keyword_optimization || "N/A"
-  }), fewer/poorer keywords = lower.
+4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
+   - If resumes are identical → Use calibration score: ${previousAnalysis?.keyword_optimization || "N/A"}
+   - If different → Adjust from calibration score (${previousAnalysis?.keyword_optimization || "N/A"}) based on new/removed skills and certifications
 
-5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%"). More/better quantified achievements = higher than calibration (${
-    previousAnalysis?.achievement_focus || "N/A"
-  }), fewer/weaker achievements = lower.
+5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
+   - If resumes are identical → Use calibration score: ${previousAnalysis?.achievement_focus || "N/A"}
+   - If different → Adjust from calibration score (${
+     previousAnalysis?.achievement_focus || "N/A"
+   }) based on new/removed quantifiable achievements and general achievements
 
 6. **Resume Analysis:**
    - **Strengths:**  
