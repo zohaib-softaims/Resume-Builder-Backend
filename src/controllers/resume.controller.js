@@ -128,12 +128,12 @@ export const parseResume = catchAsync(async (req, res) => {
   let analysis = null;
   const relevantResumeFromPinecone = await getRelevantResume(resumeText);
 
-  if (relevantResumeFromPinecone && relevantResumeFromPinecone.score >= 1 && relevantResumeFromPinecone.resumeAnalysis) {
+  if (relevantResumeFromPinecone && relevantResumeFromPinecone.score >= 0.995 && relevantResumeFromPinecone.resumeAnalysis) {
     analysis = relevantResumeFromPinecone.resumeAnalysis;
   } else if (
     relevantResumeFromPinecone &&
     relevantResumeFromPinecone.score >= 0.9 &&
-    relevantResumeFromPinecone.score < 1 &&
+    relevantResumeFromPinecone.score < 0.995 &&
     relevantResumeFromPinecone.resumeId
   ) {
     // Use resume text from Pinecone metadata
