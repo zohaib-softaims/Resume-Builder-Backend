@@ -24,7 +24,11 @@ ${resumeText}
 
 5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%"). **MAXIMUM SCORE: 98**.
 
-6. **Resume Analysis:**
+6. **Resume Strength Tips:**
+   - **Positive**: One positive key insight or the strongest aspect of this resume (e.g., strong quantified achievements).
+   - **Negative**: One negative key insight or the most critical weakness that should be improved (e.g., missing certifications, missing quantified achievements, missing an important section).
+
+7. **Resume Analysis:**
    - **Strengths:**  
      Identify key strengths that make this resume stand out. The number of strengths should be DEPENDENT on the overall resume score:
      - If overall score is 90-98: Identify 6-7 key strengths (high-scoring resumes have more strengths)
@@ -49,7 +53,7 @@ ${resumeText}
        - Suggest a constructive, content-level improvement.  
      The critique should sound like that of a professional resume consultant giving practical, actionable feedback not a mechanical checklist.
 
-7. **Keyword Analysis:**
+8. **Keyword Analysis:**
    Perform an in-depth, intelligent keyword assessment based on the resume's domain and context.
    You should infer the candidate's likely target roles or industries by analyzing the content, titles, and skills mentioned in the resume.
    Then, using your understanding of real-world job market expectations (as reflected in top job boards like LinkedIn or Indeed), identify:
@@ -183,7 +187,7 @@ ${resumeText}
 
 2. Overall Resume Score (in percentage): Evaluate overall quality of the resume based on ATS compatibility, keyword optimization, and achievement focus. 
    - If resumes are completely identical (same text, same sections, same skills, same experience) → Use EXACT calibration score: ${
-     previousAnalysis?.overall_resume_score || "N/A"
+    previousAnalysis?.overall_resume_score || "N/A"
    }
    - If resumes have MINOR differences → Make SMALL adjustments (1-3 points) from calibration score (${previousAnalysis?.overall_resume_score || "N/A"}):
      * If minor changes are GOOD (enhanced writing, better achievements, added relevant skills) → Increase by 1-3 points
@@ -194,7 +198,7 @@ ${resumeText}
 3. ATS Compatibility (score out of 100): How well the resume would perform in an ATS system.
    - If resumes are completely identical → Use EXACT calibration score: ${previousAnalysis?.ats_compatibility || "N/A"}
    - If resumes have MINOR structural/format differences → Make SMALL adjustments (1-2 points) from calibration score (${
-     previousAnalysis?.ats_compatibility || "N/A"
+    previousAnalysis?.ats_compatibility || "N/A"
    }):
      * If structural/format changes improve ATS compatibility → Increase by 1-2 points
      * If structural/format changes worsen ATS compatibility → Decrease by 1-2 points
@@ -204,7 +208,7 @@ ${resumeText}
 4. Keyword Optimization (score out of 100): Check whether industry-relevant keywords are used that are required by ATS.
    - If resumes are completely identical → Use EXACT calibration score: ${previousAnalysis?.keyword_optimization || "N/A"}
    - If resumes have MINOR skill/certification differences → Make SMALL adjustments (1-2 points) from calibration score (${
-     previousAnalysis?.keyword_optimization || "N/A"
+    previousAnalysis?.keyword_optimization || "N/A"
    }):
      * If relevant skills/certifications added → Increase by 1-2 points
      * If relevant skills/certifications removed → Decrease by 1-2 points
@@ -214,14 +218,18 @@ ${resumeText}
 5. Achievement Focus (score out of 100): Assess how well the resume quantifies achievements with metrics (e.g., "increased revenue by 27%").
    - If resumes are completely identical → Use EXACT calibration score: ${previousAnalysis?.achievement_focus || "N/A"}
    - If resumes have MINOR achievement differences → Make SMALL adjustments (1-3 points) from calibration score (${
-     previousAnalysis?.achievement_focus || "N/A"
-   }):
+      previousAnalysis?.achievement_focus || "N/A"
+    }):
      * If quantifiable achievements added or enhanced → Increase by 1-3 points
      * If quantifiable achievements removed or weakened → Decrease by 1-3 points
      * If no achievement changes → Keep same as calibration score
    **MAXIMUM SCORE: 98**.
 
-6. **Resume Analysis:**
+6. **Resume Strength Tips:**
+   - **Positive**: One positive key insight or the strongest aspect of this resume (e.g., strong quantified achievements).
+   - **Negative**: One negative key insight or the most critical weakness that should be improved (e.g., missing certifications, missing quantified achievements, missing an important section).
+
+7. **Resume Analysis:**
    - **Strengths:**  
      Identify key strengths that make this resume stand out. The number of strengths should be DEPENDENT on the overall resume score:
      - If overall score is 90-98: Identify 6-7 key strengths (high-scoring resumes have more strengths)
@@ -248,7 +256,7 @@ ${resumeText}
      The critique should sound like that of a professional resume consultant giving practical, actionable feedback not a mechanical checklist.
      **CRITICAL**: Write weaknesses based ONLY on what is missing or problematic in the current resume. Do NOT mention gaps compared to other resumes or improvements made.
 
-7. **Keyword Analysis:**
+8. **Keyword Analysis:**
    Perform an in-depth, intelligent keyword assessment based on the resume's domain and context.
    You should infer the candidate's likely target roles or industries by analyzing the content, titles, and skills mentioned in the resume.
    Then, using your understanding of real-world job market expectations (as reflected in top job boards like LinkedIn or Indeed), identify:
@@ -339,7 +347,11 @@ ${resumeText}
     previousAnalysis?.achievement_focus || "N/A"
   }). **MAXIMUM SCORE: 98**.
 
-6. **Resume Analysis:**
+6. **Resume Strength Tips:**
+   - **Positive**: One positive key insight or the strongest aspect of this resume (e.g., strong quantified achievements).
+   - **Negative**: One negative key insight or the most critical weakness that should be improved (e.g., missing certifications, missing quantified achievements, missing an important section).
+
+7. **Resume Analysis:**
    - **Strengths:**  
      Identify key strengths that make this resume stand out. The number of strengths should be DEPENDENT on the overall resume score:
      - If overall score is 90-98: Identify 6-7 key strengths (high-scoring resumes have more strengths)
@@ -366,7 +378,7 @@ ${resumeText}
      The critique should sound like that of a professional resume consultant giving practical, actionable feedback not a mechanical checklist.
      **CRITICAL**: Write weaknesses based ONLY on what is missing or problematic in the current resume. Do NOT mention gaps compared to other resumes or improvements made.
 
-7. **Keyword Analysis:**
+8. **Keyword Analysis:**
    Perform an in-depth, intelligent keyword assessment based on the resume's domain and context.
    You should infer the candidate's likely target roles or industries by analyzing the content, titles, and skills mentioned in the resume.
    Then, using your understanding of real-world job market expectations (as reflected in top job boards like LinkedIn or Indeed), identify:
@@ -444,7 +456,32 @@ export const resumeAnalysisSchema = {
       required: ["missing_keywords", "suggestions"],
       additionalProperties: false,
     },
+    resume_strength_tips: {
+      type: "object",
+      properties: {
+        positive: {
+          type: "object",
+          properties: {
+            heading: { type: "string" },
+            description: { type: "string" },
+          },
+          required: ["heading", "description"],
+          additionalProperties: false,
+        },
+        negative: {
+          type: "object",
+          properties: {
+            heading: { type: "string" },
+            description: { type: "string" },
+          },
+          required: ["heading", "description"],
+          additionalProperties: false,
+        },
+      },
+      required: ["positive", "negative"],
+      additionalProperties: false,
+    },
   },
-  required: ["name", "email", "overall_resume_score", "ats_compatibility", "keyword_optimization", "achievement_focus", "resume_analysis", "keyword_analysis"],
+  required: ["name", "email", "overall_resume_score", "ats_compatibility", "keyword_optimization", "achievement_focus", "resume_analysis", "keyword_analysis", "resume_strength_tips"],
   additionalProperties: false,
 };

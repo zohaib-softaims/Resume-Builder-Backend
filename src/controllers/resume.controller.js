@@ -184,8 +184,8 @@ export const parseResume = catchAsync(async (req, res) => {
 
   const resumeId = response.id;
 
-  // Store resume in Pinecone vector database only if no exact match was found (score < 1)
-  if (!relevantResumeFromPinecone || relevantResumeFromPinecone.score < 1) {
+  // Store resume in Pinecone vector database only if no exact match was found (score < 0.995)
+  if (!relevantResumeFromPinecone || relevantResumeFromPinecone.score < 0.995) {
     await storeResume(resumeId, resumeText, analysis);
   }
 
