@@ -56,13 +56,13 @@ export const personalInfoSchema = {
         type: "object",
         properties: {
           platform: { type: "string" },
-          url: { type: "string" }
+          url: { type: "string" },
         },
         required: ["platform", "url"],
-        additionalProperties: false
+        additionalProperties: false,
       },
-      default: []
-    }
+      default: [],
+    },
   },
   required: ["name", "email", "phone", "location", "linkedin", "portfolio", "socialLinks"],
   additionalProperties: false,
@@ -233,6 +233,7 @@ ${optimizedProjects}
 - Extract ALL description_points as separate strings in the array
 - Return as array of project objects
 
+**CRITICAL**: If no projects are found in the given Optimized Projects, return { "projects": [] }.
 **CRITICAL**: Do not remove any projects or achievements. Include everything from the optimized text.
 
 **Required JSON Format**:
