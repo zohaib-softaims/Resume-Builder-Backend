@@ -67,7 +67,7 @@ export const personalInfoSchema = {
       default: [],
     },
   },
-  required: ["name", "email"],
+  required: ["name", "email", "phone", "location", "linkedin", "portfolio", "socialLinks"],
   additionalProperties: false,
 };
 
@@ -164,7 +164,7 @@ ${optimizedExperience}
 - Parse each job entry from the text
 - YOU MUST INCLUDE ALL jobs/positions from the optimized experience
 - Extract company name, job title/position
-- Extract location if mentioned
+- Extract location if mentioned otherwise return empty string in location
 - Extract a single years string formatted as "StartDate–EndDate" (example: "Jan 2020–Present")
 - Extract ALL responsibilities/achievements as separate strings in description_points
 - Each responsibility should be a separate string in the array
@@ -178,7 +178,7 @@ ${optimizedExperience}
     {
       "company": "Company Name",
       "position": "Job Title",
-      "location": "City, State",
+      "location": "City, State", //return empty string if no location found
       "years": "Jan 2020–Present",
       "description_points": [
         "Achievement bullet point 1",
@@ -231,7 +231,7 @@ ${optimizedProjects}
 - Parse each project from the text
 - YOU MUST INCLUDE ALL projects from the optimized projects
 - Extract project title
-- Extract tech_stack (as array of strings)
+- Extract tech_stack (as array of strings) //return empty array if no tech_Stack found
 - Extract link if provided; if not present, output an empty string
 - Extract ALL description_points as separate strings in the array
 - Return as array of project objects
@@ -248,8 +248,8 @@ ${optimizedProjects}
         "Achievement 1 with metrics",
         "Achievement 2 with impact"
       ],
-      "tech_stack": ["React", "Node.js"],
-      "link": "https://example.com"
+      "tech_stack": ["React", "Node.js"], //return empty array if no tech stack found
+      "link": "https://example.com" //returm empty string if no link found
     }
   ]
 }
@@ -349,7 +349,7 @@ export const achievementsAwardsSchema = {
             items: { type: "string" },
           },
         },
-        required: ["title"],
+        required: ["title", "issuer", "year", "description_points"],
         additionalProperties: false,
       },
     },
