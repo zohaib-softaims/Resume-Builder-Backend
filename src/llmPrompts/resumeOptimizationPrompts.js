@@ -965,6 +965,7 @@ Before responding, verify:
 
 **ONLY** optimize what's already explicitly categorized as Achievements or Awards in the original resume.
 
+
 Generate the optimized Achievements and/or Awards section(s) now (or empty string if neither exists).
 `;
 };

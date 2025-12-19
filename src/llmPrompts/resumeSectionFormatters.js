@@ -38,9 +38,8 @@ ${originalResumeText}
     {"platform": "GitHub", "url": "https://github.com/username"}
   ]
 }
-If any information (such as location, LinkedIn, portfolio, or other optional fields) is not found, do not include that field in the output JSON.
-Only name and email are required and must always be present.
-All other fields are optional and should be returned only if valid data is available.
+If any information (such as location, LinkedIn, portfolio, or other optional fields) is not found, return an empty string for that field.
+
 `;
 };
 
