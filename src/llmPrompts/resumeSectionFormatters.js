@@ -38,6 +38,9 @@ ${originalResumeText}
     {"platform": "GitHub", "url": "https://github.com/username"}
   ]
 }
+If any information (such as location, LinkedIn, portfolio, or other optional fields) is not found, do not include that field in the output JSON.
+Only name and email are required and must always be present.
+All other fields are optional and should be returned only if valid data is available.
 `;
 };
 
@@ -64,7 +67,7 @@ export const personalInfoSchema = {
       default: [],
     },
   },
-  required: ["name", "email", "phone", "location", "linkedin", "portfolio", "socialLinks"],
+  required: ["name", "email"],
   additionalProperties: false,
 };
 
@@ -168,7 +171,7 @@ ${optimizedExperience}
 - Return as array of experience objects
 
 **CRITICAL**: Do not remove any jobs or responsibilities. Include everything from the optimized text.
-
+**CRITICAL**: Do not include location of experience if not found, return empty string for location if not found.
 **Required JSON Format**:
 {
   "experience": [
@@ -297,6 +300,10 @@ ${optimizedText}
 - If awards are present, extract each award with title, issuer, year, and description_points
 - Return as structured JSON
 
+- If issuer for award did not found return empty string for issuer
+- If year for award did not found return empty string for year
+- If description_points for award did not found return empty array for description_points
+
 **Required JSON Format**:
 {
   "achievements": [
@@ -364,7 +371,7 @@ ${optimizedCertifications}
 **Instructions**:
 - Parse each certification entry
 - Extract certification name, issuer, and year
-- Extract ALL bullet points as description_points
+- Extract ALL bullet points as description_points if provided otherwise return empty array for description_points
 - Return as structured JSON
 
 **Required JSON Format**:

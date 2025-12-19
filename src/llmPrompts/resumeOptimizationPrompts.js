@@ -493,6 +493,9 @@ Use this exact structure for each project:
 - [Enhanced bullet with technical details and metrics]
 - [Continue - SAME number of bullets as original]
 
+If there is no tech stack just don't include in your output.
+
+CRITICAL REMINDER: If the original resume contains no projects, do not create or invent any projects. Simply return nothing for the projects in your output and say no projects found.
 **CRITICAL REMINDER**: Keep the SAME number of bullets. If original has 5 bullets, output has exactly 5 bullets.
 
 [Blank line]
@@ -734,6 +737,9 @@ Use this exact structure for each position:
 
 ---
 
+
+If you don't find any of the info such as company name or location of job|company just simply don;t include that in your output
+
 ## VERIFICATION CHECKLIST
 
 Complete this verification BEFORE responding:
@@ -801,10 +807,7 @@ Generate the optimized Experience section now.
 `;
 };
 
-export const getOptimizedAchievementsAwardsPrompt = (
-  resumeText,
-  resumeAnalysis
-) => {
+export const getOptimizedAchievementsAwardsPrompt = (resumeText, resumeAnalysis) => {
   return `# YOUR ROLE
 You are a senior career coach and resume specialist with 10+ years876reaZxvhb of experience helping professionals highlight their accomplishments and recognitions. You understand that Achievements and Awards demonstrate exceptional performance, leadership, and industry recognition—powerful differentiators that make candidates stand out. You know how to quantify achievements and frame awards in ways that resonate with hiring managers.
 
@@ -866,10 +869,8 @@ For each award, include:
 - **Issuing organization** (company, institution, industry body)
 - **Year received**
 - **Context/significance** (selection criteria, competition pool, what it recognizes)
-- **Rarity if impressive** (e.g., "1 of 10 nationally", "Top 1% of 5000 employees")
 
-**STEP 4 - INTEGRATE KEYWORDS**
-Add 1-2 missing keywords from Resume Analysis ONLY if genuinely applicable to the achievement/award.
+
 
 ---
 
@@ -891,50 +892,7 @@ Add 1-2 missing keywords from Resume Analysis ONLY if genuinely applicable to th
 
 ---
 
-## EXAMPLES
 
-### Example 1: Enhancing Achievements
-
-**ORIGINAL ACHIEVEMENTS:**
-- Exceeded sales targets
-- Improved team efficiency
-- Won employee recognition
-
-**ENHANCED ACHIEVEMENTS:**
-- Exceeded quarterly sales targets by 35%, generating $2.5M in additional revenue and ranking #2 out of 45 sales representatives nationally
-- Improved cross-functional team efficiency by implementing automated reporting system, reducing weekly reporting time from 8 hours to 2 hours (75% reduction) and enabling team to handle 40% more client projects
-- Won "Employee of the Year" award in 2023, selected from 500+ employees for exceptional performance, client satisfaction scores of 98%, and mentoring 5 junior team members to promotion
-
-**Analysis:**
-- ✅ Preserved: All 3 original achievements
-- ✅ Added: Specific percentages (35%, 75%, 40%), dollar amounts ($2.5M), rankings (#2 of 45), timeframes, selection pool (500+), metrics (98%), mentorship details
-- ✅ Showed impact and context for each achievement
-
----
-
-### Example 2: Enhancing Awards
-
-**ORIGINAL AWARDS:**
-- Dean's List (2021)
-- Best Paper Award
-- Hackathon Winner
-
-**ENHANCED AWARDS:**
-**Dean's List** | University of California, Berkeley | Spring 2021
-Recognized for academic excellence with GPA of 3.9/4.0, placing in top 10% of 1,200 engineering students
-
-**Best Paper Award** | International Conference on Machine Learning | 2022
-Awarded for research paper "Neural Networks for Climate Prediction," selected from 500+ submissions as one of 15 outstanding papers (3% acceptance rate) for methodological innovation and real-world impact
-
-**1st Place - AI Hackathon** | TechCrunch Disrupt | October 2023
-Led team of 4 to win grand prize among 80 competing teams, developing real-time fraud detection system using machine learning, recognized for technical execution and business viability
-
-**Analysis:**
-- ✅ Preserved: All 3 original awards
-- ✅ Added: Issuing organizations, years, context (GPA, top 10%, 500+ submissions, 3% rate, 80 teams), what was recognized (innovation, impact, execution)
-- ✅ Formatted consistently with title | organization | year structure
-
----
 
 ### Example 3: Conditional Handling
 
@@ -969,10 +927,10 @@ ACHIEVEMENTS
 **If Awards section exists:**
 AWARDS
 **[Award Title]** | [Issuing Organization] | [Year]
-[Context about significance, selection criteria, or rarity if impressive]
+[Context about significance, selection criteria, or rarity if providied in original resume otherwise don't]
 
 **[Award Title]** | [Issuing Organization] | [Year]
-[Context about significance, selection criteria, or rarity if impressive]
+[Context about significance, selection criteria, or rarity if providied in original resume otherwise don't]
 
 [Continue for all original awards]
 
@@ -991,22 +949,7 @@ Before responding, verify:
 - [ ] Generating output for ONLY sections that exist in original
 - [ ] If neither exists, returning empty string
 
-### Preservation Check
-- [ ] Every achievement from original → appears in output
-- [ ] Every award from original → appears in output
-- [ ] No achievements extracted from Experience/Projects sections
 
-### Enhancement Check (if section exists)
-- [ ] Achievements: Added metrics, scope, or impact to 80%+ items
-- [ ] Awards: Included organization and year for 100% of items
-- [ ] Awards: Added context about significance where applicable
-- [ ] Used strong action verbs for achievements
-- [ ] No vague statements ("did great work")
-
-### Quality Check
-- [ ] Professional, concise phrasing
-- [ ] No fabricated details unsupported by original
-- [ ] Formatting is consistent across all items
 
 ---
 
