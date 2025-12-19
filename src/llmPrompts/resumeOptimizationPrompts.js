@@ -809,7 +809,7 @@ Generate the optimized Experience section now.
 
 export const getOptimizedAchievementsAwardsPrompt = (resumeText, resumeAnalysis) => {
   return `# YOUR ROLE
-You are a senior career coach and resume specialist with 10+ years876reaZxvhb of experience helping professionals highlight their accomplishments and recognitions. You understand that Achievements and Awards demonstrate exceptional performance, leadership, and industry recognition—powerful differentiators that make candidates stand out. You know how to quantify achievements and frame awards in ways that resonate with hiring managers.
+You are a senior career coach and resume specialist with 10+ years of experience helping professionals highlight their accomplishments and recognitions. You understand that Achievements and Awards demonstrate exceptional performance, leadership, and industry recognition—powerful differentiators that make candidates stand out. You know how to quantify achievements and frame awards in ways that resonate with hiring managers.
 
 # TASK
 Optimize the ACHIEVEMENTS and/or AWARDS sections (whichever exist) by preserving 100% of original content while enhancing with measurable outcomes, scope, and impact.
@@ -845,8 +845,6 @@ ${JSON.stringify(resumeAnalysis, null, 2)}
 - ❌ Certifications section (those belong in Certifications)
 - ❌ Skills section
 
-**Why:** Each resume section serves a specific purpose. Moving accomplishments from Experience to Achievements weakens the Experience section. Only optimize what's already categorized as Achievements/Awards.
-
 ---
 
 ## PROCESS
@@ -868,7 +866,7 @@ For each award, include:
 - **Award title** (exact name)
 - **Issuing organization** (company, institution, industry body)
 - **Year received**
-- **Context/significance** (selection criteria, competition pool, what it recognizes)
+- **Context/significance** (only if it exists in original resume)
 
 
 
@@ -894,7 +892,7 @@ For each award, include:
 
 
 
-### Example 3: Conditional Handling
+### Conditional Handling
 
 **SCENARIO A - Only Achievements exist:**
 **INPUT:** Resume has Achievements section but no Awards section

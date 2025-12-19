@@ -349,7 +349,7 @@ export const achievementsAwardsSchema = {
             items: { type: "string" },
           },
         },
-        required: ["title", "issuer", "year", "description_points"],
+        required: ["title"],
         additionalProperties: false,
       },
     },
