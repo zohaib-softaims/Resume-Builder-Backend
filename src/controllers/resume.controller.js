@@ -32,7 +32,7 @@ import { getRelevantResume, storeResume } from "../lib/pineconeResumeStore.js";
 export const parseResume = catchAsync(async (req, res) => {
   const userId = req.auth?.userId; // Optional - can be guest
   const isGuest = !userId;
-
+console.log("isGuest",userId);
   // Only check resume limit for authenticated users
   if (!isGuest) {
     const resumeCount = await getResumeCountByUserId(userId);
@@ -403,6 +403,8 @@ export const getResume = catchAsync(async (req, res) => {
       resume_analysis_score: resume.resume_analysis_score,
       original_resume_url: resume.resume_fileUrl,
       optimized_resume_url: resume.optimized_resumeUrl,
+      is_paid: resume.is_paid || false,
+      paid_at: resume.paid_at,
       created_at: resume.createdAt,
       updated_at: resume.updatedAt,
     },

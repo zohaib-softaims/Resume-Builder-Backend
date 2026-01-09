@@ -32,6 +32,9 @@ model Resume {
   resume_analysis_score Json?
   resume_json          Json?
   optimized_resumeUrl  String?
+  is_paid              Boolean   @default(false)
+  paid_at              DateTime?
+  stripe_payment_intent String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   user                 User?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -39,6 +42,7 @@ model Resume {
 
   @@index([user_id])
   @@index([expires_at])
+  @@index([is_paid])
   @@map("resumes")
 }
 

@@ -3,6 +3,7 @@
  * Determines the request type and sets appropriate flags
  */
 export const parseResumeHandler = (req, res, next) => {
+  console.log("req", req);
   const contentType = req.get('Content-Type');
 
   // Check if it's a JSON request
