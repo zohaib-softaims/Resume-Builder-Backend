@@ -27,6 +27,8 @@ import {
 import { getResumeById } from "../services/resume.service.js";
 import { optimizeResumeForJob } from "../services/jobResumeOptimization.service.js";
 import { generateCoverLetterForJob } from "../services/coverLetterGeneration.service.js";
+import { findSubscriptionByUserId } from "../services/payment.service.js";
+import { DUMMY_RESUME_URL, DUMMY_COVER_LETTER_URL } from "../constants/jobConstants.js";
 import logger from "../lib/logger.js";
 import { USER_LIMITS, LIMIT_ERROR_MESSAGES } from "../config/limits.config.js";
 import { autoClaimGuestResume } from "../utils/autoClaimHelper.js";
@@ -300,12 +302,22 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
     throw new AppError(500, "Failed to upload cover letter PDF to AWS S3");
   }
 
-  // Update job record with PDF URLs and store the resume JSON
+  let isPaid = false;
+  let paymentMode = null;
+  
+  const subscription = await findSubscriptionByUserId(userId);
+  if (subscription && subscription.stripe_status === "active" && subscription.plan?.jobOptimization === true) {
+    isPaid = true;
+    paymentMode = "subscription";
+  }
+
   await updateJob(
     job_id,
     resumeUploadResult.url,
     coverLetterUploadResult.url,
-    resumeJson
+    resumeJson,
+    isPaid,
+    paymentMode
   );
 
   logger.info(
@@ -319,8 +331,12 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
       coverLetterPdfSize: `${(coverLetterPdfBuffer.length / 1024).toFixed(
         2
       )} KB`,
+      is_paid: isPaid || false,
     }
   );
+
+  const pdfUrl = isPaid ? resumeUploadResult.url : DUMMY_RESUME_URL;
+  const coverLetterUrl = isPaid ? coverLetterUploadResult.url : DUMMY_COVER_LETTER_URL;
 
   res.status(200).json({
     success: true,
@@ -328,8 +344,9 @@ export const optimizeJobResume = catchAsync(async (req, res) => {
     data: {
       job_id,
       resume_id,
-      pdf_url: resumeUploadResult.url,
-      cover_letter_url: coverLetterUploadResult.url,
+      pdf_url: pdfUrl,
+      cover_letter_url: coverLetterUrl,
+      is_paid: isPaid || false,
     },
   });
 });
@@ -357,6 +374,10 @@ export const getJob = catchAsync(async (req, res) => {
     ? JSON.parse(job.job_gap_analysis)
     : {};
 
+  const isPaid = job.is_paid || false;
+  const optimizedResumeUrl = isPaid ? job.optimized_resumeUrl : DUMMY_RESUME_URL;
+  const coverLetterUrl = isPaid ? job.cover_letterUrl : DUMMY_COVER_LETTER_URL;
+
   return res.status(200).json({
     success: true,
     message: "Job details fetched successfully",
@@ -367,9 +388,10 @@ export const getJob = catchAsync(async (req, res) => {
       job_description: job.job_description,
       job_gap_analysis: parsedGapAnalysis,
       job_analysis_score: job.job_analysis_score,
-      optimized_resume_url: job.optimized_resumeUrl,
-      cover_letter_url: job.cover_letterUrl,
+      optimized_resume_url: optimizedResumeUrl,
+      cover_letter_url: coverLetterUrl,
       original_resume_url: job.resume?.resume_fileUrl || null,
+      is_paid: isPaid,
       created_at: job.createdAt,
       updated_at: job.updatedAt,
     },

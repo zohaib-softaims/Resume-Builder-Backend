@@ -43,7 +43,9 @@ export const updateJob = async (
   job_id,
   optimized_resumeUrl,
   cover_letterUrl,
-  optimized_resume_json = null
+  optimized_resume_json = null,
+  is_paid = null,
+  payment_mode = null
 ) => {
   const updateData = {
     optimized_resumeUrl,
@@ -52,6 +54,13 @@ export const updateJob = async (
 
   if (optimized_resume_json !== null) {
     updateData.optimized_resume_json = optimized_resume_json;
+  }
+
+  if (is_paid !== null) {
+    updateData.is_paid = is_paid;
+  }
+  if (payment_mode !== null) {
+    updateData.payment_mode = payment_mode;
   }
 
   return prisma.job.update({
@@ -112,6 +121,58 @@ export const getJobCountByUserId = async (user_id) => {
       resume: { user_id },
     },
   });
+};
+
+export const markJobAsPaid = async (job_id, payment_mode = "one_time_payment") => {
+  const job = await prisma.job.findUnique({
+    where: { id: job_id },
+    select: { is_paid: true, payment_mode: true },
+  });
+
+  if (!job) {
+    throw new Error(`Job not found: ${job_id}`);
+  }
+
+  if (job.is_paid && job.payment_mode === payment_mode) {
+    return prisma.job.findUnique({
+      where: { id: job_id },
+    });
+  }
+
+  return prisma.job.update({
+    where: { id: job_id },
+    data: { 
+      is_paid: true,
+      payment_mode: payment_mode,
+    },
+  });
+};
+
+
+export const markAllUserJobsAsPaid = async (userId, payment_mode = "subscription") => {
+  const resumes = await prisma.resume.findMany({
+    where: { user_id: userId },
+    select: { id: true },
+  });
+
+  const resumeIds = resumes.map((resume) => resume.id);
+
+  if (resumeIds.length === 0) {
+    return { count: 0 };
+  }
+
+  const result = await prisma.job.updateMany({
+    where: {
+      resume_id: { in: resumeIds },
+      is_paid: false,
+    },
+    data: { 
+      is_paid: true,
+      payment_mode: payment_mode,
+    },
+  });
+
+  return result;
 };
 
 /**

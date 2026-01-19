@@ -4,12 +4,13 @@ import { createServer } from "http";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import webhookRoutes from "./routes/webhook.routes.js";
 import protectedRoutes from "./routes/protected.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
 import jobRoutes from "./routes/job.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import webhookRoutes from "./routes/webhook.routes.js";
 import { errorHandler } from "./utils/error.js";
 import cookieParser from "cookie-parser";
 import { clerkMiddleware } from "@clerk/express";
@@ -28,17 +29,20 @@ app.use(
 );
 
 app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(clerkMiddleware());
 
 app.use("/api/webhooks", webhookRoutes);
+
+// Now apply JSON parsing for all other routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(clerkMiddleware());
 app.use("/api/protected", protectedRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.use(errorHandler);
 

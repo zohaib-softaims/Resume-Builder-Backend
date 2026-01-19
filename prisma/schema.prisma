@@ -11,13 +11,16 @@ datasource db {
 }
 
 model User {
-  id        String    @id
-  email     String    @unique
+  id        String   @id
+  email     String   @unique
   name      String
-  image_url  String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  resumes   Resume[]
+  image_url String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resumes       Resume[]
+  subscription  Subscription?
+  payments      Payment[]
 
   @@map("users")
 }
@@ -53,10 +56,17 @@ model Job {
   optimized_resumeUrl      String?
   optimized_resume_json    Json?
   cover_letterUrl          String?
+
+  is_paid           Boolean  @default(false)
+  payment_mode             String?
+
   createdAt                DateTime        @default(now())
   updatedAt                DateTime        @updatedAt
   resume                   Resume          @relation(fields: [resume_id], references: [id], onDelete: Cascade)
   suggestions              JobSuggestion[]
+  payments                 Payment?         
+
+  @@index([is_paid])
   @@map("jobs")
 }
 
@@ -70,4 +80,73 @@ model JobSuggestion {
   job                     Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
 
   @@map("job_suggestions")
+}
+
+model Subscription {
+  id                     String   @id @default(cuid())
+  user_id                String   @unique
+  plan_id                String
+
+  stripe_subscription_id String?  @unique
+  stripe_customer_id     String?
+  stripe_status          String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [plan_id], references: [id])
+
+  @@index([stripe_status])
+  @@map("subscriptions")
+}
+
+
+model Payment {
+  id                       String   @id @default(cuid())
+  user_id                  String
+  job_id                   String   @unique
+
+  amount                   Int
+  currency                 String   @default("usd")
+
+  status                   String
+  stripe_payment_intent_id String   @unique
+
+  paid_at                  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  job  Job?  @relation(fields: [job_id], references: [id], onDelete: Cascade )
+
+  @@index([user_id])
+  @@index([job_id])
+  @@index([status])
+  @@map("payments")
+}
+
+model Plan {
+  id                  String   @id @default(cuid())
+  name                String
+  type                String
+
+  generalOptimization Boolean  @default(false)
+  jobOptimization     Boolean  @default(false)
+
+  stripe_product_id   String?   @unique
+  stripe_price_id     String?   @unique
+
+  price               Float     @default(0)
+  features            String[]
+
+  is_active           Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+
+  @@map("plans")
 }

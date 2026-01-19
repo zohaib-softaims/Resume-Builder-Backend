@@ -7,6 +7,9 @@ import { getLLMResponse } from "../lib/llmConfig.js";
 import { generateSuggestionsPrompt } from "../llmPrompts/suggestionPrompts.js";
 import { suggestionOpenAISchema } from "../schemas/suggestionSchemas.js";
 import { generateCoverLetterForJob } from "../services/coverLetterGeneration.service.js";
+import { DUMMY_RESUME_URL, DUMMY_COVER_LETTER_URL } from "../constants/jobConstants.js";
+import { findSubscriptionByUserId } from "../services/payment.service.js";
+
 import {
   generateResumePDF,
   generatePDFFromHtml,
@@ -327,8 +330,18 @@ export const optimizeWithAcceptedSuggestionsHandler = async (req, res) => {
       job_id,
     });
 
-    // Update job record with URLs and optimized resume JSON
-    // Also update accepted suggestions in parallel
+    const userId = job?.resume?.user_id;
+
+    let isPaid = false;
+    let paymentMode = null;
+    
+    const subscription = await findSubscriptionByUserId(userId);
+          
+    if (subscription && subscription.stripe_status === "active" && subscription.plan?.jobOptimization === true) {
+      isPaid = true;
+      paymentMode = "subscription";
+    }
+
     await Promise.all([
       prisma.job.update({
         where: { id: job_id },
@@ -336,6 +349,8 @@ export const optimizeWithAcceptedSuggestionsHandler = async (req, res) => {
           optimized_resumeUrl: resumeUrl,
           optimized_resume_json: optimizedResumeJson,
           cover_letterUrl: coverLetterUrl,
+          is_paid: isPaid,
+          payment_mode: paymentMode,
           updatedAt: new Date(),
         },
       }),
@@ -354,12 +369,16 @@ export const optimizeWithAcceptedSuggestionsHandler = async (req, res) => {
       cover_letter_url: coverLetterUrl,
     });
 
+    const finalResumeUrl = isPaid ? resumeUrl : DUMMY_RESUME_URL;
+    const finalCoverLetterUrl = isPaid ? coverLetterUrl : DUMMY_COVER_LETTER_URL;
+
     return res.status(200).json({
       success: true,
       message: "Resume optimized successfully with accepted suggestions",
       data: {
-        resume_url: resumeUrl,
-        cover_letter_url: coverLetterUrl,
+        resume_url: finalResumeUrl,
+        cover_letter_url: finalCoverLetterUrl,
+        is_paid: isPaid || false,
         optimized_resume_json: optimizedResumeJson,
         cover_letter_text: coverLetterJson,
       },

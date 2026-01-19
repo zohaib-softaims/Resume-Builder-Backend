@@ -1,4 +1,6 @@
 import prisma from "../lib/prisma.js";
+import { createFreePlanSubscription } from "./payment.service.js";
+import logger from "../lib/logger.js";
 
 export const createUser = async (userData) => {
   const email = userData.email_addresses?.[0]?.email_address || userData.email;
@@ -13,6 +15,8 @@ export const createUser = async (userData) => {
       image_url: image_url,
     },
   });
+
+  await createFreePlanSubscription(user.id);
 
   return user;
 };
@@ -35,6 +39,14 @@ export const updateUser = async (userData) => {
       name: name,
       image_url: image_url,
     },
+  });
+
+  return user;
+};
+
+export const findUserById = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
   });
 
   return user;
