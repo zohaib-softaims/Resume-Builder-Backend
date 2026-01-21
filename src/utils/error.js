@@ -27,8 +27,7 @@ export const errorHandler = (err, req, res, next) => {
     statusCode = err.status;
   }
 
-  const isOperationalError =
-    err instanceof AppError || err.name === "ZodError" || Boolean(err.status);
+  const isOperationalError = err instanceof AppError || err.name === "ZodError" || Boolean(err.status);
 
   // Hide internal errors (like Prisma/DB failures) from clients
   if (!isOperationalError && statusCode >= 500) {
@@ -37,6 +36,17 @@ export const errorHandler = (err, req, res, next) => {
 
   // Log the error with full context
   logger.error(`API Error: ${err.message || clientMessage}`, {
+    statusCode,
+    errorName: err.name,
+    errorMessage: err.message,
+    stack: err.stack,
+    method: req.method,
+    path: req.path,
+    ip: req.ip,
+    userAgent: req.get("user-agent"),
+    userId: req.auth?.userId || "anonymous",
+  });
+  logger.file(` Error: ${err.message || clientMessage}`, {
     statusCode,
     errorName: err.name,
     errorMessage: err.message,
