@@ -179,7 +179,7 @@ export const parseResume = catchAsync(async (req, res) => {
     analysis,
     resumeAnalysisScore,
     resumeJson, // Pass JSON data if available (will be null for file uploads)
-    expiresAt // Pass expiry time for guests
+    expiresAt, // Pass expiry time for guests
   );
 
   const resumeId = response.id;
@@ -342,7 +342,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
 
 export const getUserResumes = catchAsync(async (req, res) => {
   const user_id = req.auth.userId;
-
+  a;
   const resumes = await getResumesByUserId(user_id);
 
   // Extract original filename from S3 URL
