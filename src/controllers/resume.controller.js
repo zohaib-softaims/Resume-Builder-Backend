@@ -342,7 +342,7 @@ export const optimizeResume = catchAsync(async (req, res) => {
 
 export const getUserResumes = catchAsync(async (req, res) => {
   const user_id = req.auth.userId;
-
+  a;
   const resumes = await getResumesByUserId(user_id);
 
   // Extract original filename from S3 URL
