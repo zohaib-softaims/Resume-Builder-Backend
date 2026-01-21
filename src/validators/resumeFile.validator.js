@@ -1,6 +1,6 @@
 export const resumeFileValidator = (req, res, next) => {
   const file = req.file;
-  const allowedExtensions = [".pdf", ".docx", ".doc", ".txt"];
+  const allowedExtensions = [".pdf", ".docx"];
   const maxSizeInBytes = 5 * 1024 * 1024;
 
   if (!file) {
@@ -15,7 +15,7 @@ export const resumeFileValidator = (req, res, next) => {
   if (!allowedExtensions.includes(`.${extension}`)) {
     return res.status(400).json({
       success: false,
-      message: "Invalid file type! Allowed: .pdf, .docx, .doc, .txt",
+      message: "Invalid file type! Allowed: .pdf, .docx",
     });
   }
 
