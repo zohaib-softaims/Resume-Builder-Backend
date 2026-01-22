@@ -8,7 +8,8 @@ export const requireAuth = (req, res, next) => {
   // }
 
   // Production Clerk auth check
-  if (!req.auth?.userId) {
+  const session = req.auth ? req.auth() : null;
+  if (!session || !session.userId) {
     return res.status(401).json({
       success: false,
       message: "Unauthorized - Please sign in",
