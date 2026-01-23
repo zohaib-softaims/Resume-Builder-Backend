@@ -57,3 +57,11 @@ export const deleteUser = async (userId) => {
 
   return user;
 };
+
+export const updateLastLogin = async (userId) => {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { last_login: new Date() },
+  });
+  return user;
+};

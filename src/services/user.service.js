@@ -1,6 +1,15 @@
 import { getResumesByUserId } from "./resume.service.js";
 import { getJobsByUserId, getOptimizedJobCountByUserId } from "./job.service.js";
 import { extractOriginalFileName } from "../utils/fileUtils.js";
+import prisma from "../lib/prisma.js";
+
+export const markConsiliariClicked = async (userId) => {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { consiliari_clicked: true },
+  });
+  return user;
+};
 
 export const getUserStats = async (user_id) => {
   // Execute all 5 queries in parallel
@@ -74,4 +83,165 @@ export const getUserStats = async (user_id) => {
       updated_at: job.updatedAt,
     })),
   };
+};
+
+//Admin Services
+export const getUserOverviewStats = async () => {
+  const totalUsers = await prisma.user.count();
+
+  const subscribedUsers = await prisma.subscription.count({
+    where: {
+      stripe_status: "active",
+      plan: {
+        type: "Monthly",
+      },
+    },
+  });
+
+  const conversionRate =
+    totalUsers > 0 ? ((subscribedUsers / totalUsers) * 100).toFixed(1) : "0.0";
+
+  const nonSubscribedUsers = totalUsers - subscribedUsers;
+
+  return {
+    totalUsers,
+    subscribedUsers,
+    nonSubscribedUsers,
+    conversionRate: parseFloat(conversionRate),
+  };
+};
+
+export const getUsersList = async (options = {}) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    tab = "all",
+    timeRange = "7days",
+    monthFilter = "",
+    subscriptionFilter = "all",
+  } = options;
+
+  const skip = (page - 1) * limit;
+
+  const now = new Date();
+  let dateFilter = {};
+
+  if (monthFilter) {
+    const [year, month] = monthFilter.split("-");
+    const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+    dateFilter = { gte: startDate, lte: endDate };
+  } else if (timeRange) {
+    let filterDate = new Date();
+    if (timeRange === "yesterday") {
+      filterDate.setDate(now.getDate() - 1);
+      filterDate.setHours(0, 0, 0, 0);
+      const nextDay = new Date(filterDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      dateFilter = { gte: filterDate, lt: nextDay };
+    } else if (timeRange === "7days") {
+      filterDate.setDate(now.getDate() - 7);
+      dateFilter = { gte: filterDate };
+    } else if (timeRange === "30days") {
+      filterDate.setDate(now.getDate() - 30);
+      dateFilter = { gte: filterDate };
+    }
+  }
+
+  const getSubscriptionWhere = () => {
+    if (subscriptionFilter === "subscribed") {
+      return { subscription: { stripe_status: "active", plan: { type: "Monthly" } } };
+    } else if (subscriptionFilter === "non-subscribed") {
+      return {
+        OR: [
+          { subscription: null },
+          { subscription: { OR: [{ stripe_status: { not: "active" } }, { plan: { type: { not: "Monthly" } } }] } },
+        ],
+      };
+    }
+    return {};
+  };
+
+  const where = {
+    AND: [
+      search ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }] } : {},
+      getSubscriptionWhere(),
+      tab === "new" && Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : {},
+      tab === "active" && Object.keys(dateFilter).length > 0 ? { last_login: dateFilter } : {},
+    ],
+  };
+
+  try {
+    const [users, totalCount] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        take: limit,
+        skip: skip,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+          last_login: true,
+          
+          _count: {
+            select: { resumes: true },
+          },
+
+          resumes: {
+            where: { optimized_resumeUrl: { not: null } },
+            select: {
+              _count: {
+                select: {
+                  jobs: { where: { optimized_resumeUrl: { not: null } } }
+                }
+              }
+            }
+          },
+
+          subscription: {
+            select: {
+              stripe_status: true,
+              plan: { select: { type: true } },
+            },
+          },
+        },
+      }),
+      prisma.user.count({ where }),
+    ]);
+
+    const formattedUsers = users.map((u) => ({
+      id: u.id,
+      name: u.name || "N/A",
+      email: u.email,
+      signupDate: u.createdAt,
+      lastActivityDate: u.last_login,
+      
+      totalResumes: u._count.resumes,
+      
+      generalOptimized: u.resumes.length,
+
+      jobOptimized: u.resumes.reduce((sum, r) => sum + r._count.jobs, 0),
+
+      subscriptionStatus:
+        u.subscription?.stripe_status === "active" && u.subscription?.plan?.type === "Monthly"
+          ? "Subscribed"
+          : "Non-Subscribed",
+    }));
+
+    return {
+      users: formattedUsers,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to fetch users");
+  }
 };

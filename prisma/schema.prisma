@@ -15,6 +15,8 @@ model User {
   email     String    @unique
   name      String
   image_url  String?
+  last_login DateTime?
+  consiliari_clicked Boolean  @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   resumes   Resume[]
@@ -70,4 +72,28 @@ model JobSuggestion {
   job                     Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
 
   @@map("job_suggestions")
+}
+
+model Admin {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password_hash String
+  name          String
+
+  is_active     Boolean  @default(true) 
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model AppAnalytics {
+  id                          Int      @id @default(1)
+  totalAppVisits              Int      @default(0)
+  totalGuestResumeAnalysis    Int      @default(0)
+  fixAtsOrCustomizedClicked   Int      @default(0)
+  signupButtonClicked         Int      @default(0)
+
+  updatedAt                   DateTime @updatedAt
 }

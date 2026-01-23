@@ -5,6 +5,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import webhookRoutes from "./routes/webhook.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import visitorRoutes from "./routes/visitor.routes.js";
 import protectedRoutes from "./routes/protected.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
 import jobRoutes from "./routes/job.routes.js";
@@ -39,6 +41,8 @@ app.use("/api/resume", resumeRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/visitor", visitorRoutes);
 
 app.use(errorHandler);
 

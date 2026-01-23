@@ -23,6 +23,9 @@ import {
   getJobsByUserId,
   getJobCountByUserId,
   deleteJob as deleteJobFromDb,
+  getJobAnalysisStats,
+  getJobAnalysisList,
+  getJobAnalysisByUserId,
 } from "../services/job.service.js";
 import { getResumeById } from "../services/resume.service.js";
 import { optimizeResumeForJob } from "../services/jobResumeOptimization.service.js";
@@ -744,5 +747,61 @@ export const generateResumeFromJson = catchAsync(async (req, res) => {
       optimized_resume_url: resumeUploadResult.url,
       cover_letter_url: coverLetterUrl,
     },
+  });
+});
+
+//admin endpoints
+
+export const getJobAnalysisStatsController = catchAsync(async (req, res) => {
+  logger.info("Admin fetching job analysis statistics", {
+    adminId: req.admin.id,
+  });
+
+  const stats = await getJobAnalysisStats();
+
+  return res.status(200).json({
+    success: true,
+    message: "Job analysis statistics fetched successfully",
+    data: stats,
+  });
+});
+
+export const getJobAnalysisListController = catchAsync(async (req, res) => {
+  const { page, limit, search } = req.query;
+
+  logger.info("Admin fetching job analysis list", {
+    adminId: req.admin.id,
+    filters: { page, limit, search },
+  });
+
+  const options = {
+    page: page ? parseInt(page) : 1,
+    limit: limit ? parseInt(limit) : 10,
+    search: search || "",
+  };
+
+  const result = await getJobAnalysisList(options);
+
+  return res.status(200).json({
+    success: true,
+    message: "Job analysis list fetched successfully",
+    data: result,
+  });
+});
+
+export const getJobAnalysisByUserIdController = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  logger.info("Admin fetching job analysis by user ID", {
+    adminId: req.admin.id,
+    userId,
+  });
+
+  const result = await getJobAnalysisByUserId(userId);
+
+  return res.status(200).json({
+    success: true,
+    message: "Job analysis details fetched successfully",
+    data: result,
   });
 });

@@ -1,3 +1,5 @@
+import { updateLastLogin } from "../services/auth.service.js";
+
 export const requireAuth = (req, res, next) => {
   // Development bypass mode
   // if (process.env.BYPASS_AUTH === "true") {
@@ -15,6 +17,9 @@ export const requireAuth = (req, res, next) => {
       message: "Unauthorized - Please sign in",
     });
   }
+
+  updateLastLogin(req.auth.userId);
+
   next();
 };
 
