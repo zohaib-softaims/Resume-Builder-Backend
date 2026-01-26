@@ -1,17 +1,15 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
-
-
+  console.log("🌱 Starting database seed...");
 
   // Create admin user
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@resumebuilder.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
-  const adminName = process.env.ADMIN_NAME || 'Admin User';
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@customairesumebuilder.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "Fat People eat a lot of food in 2026$";
+  const adminName = process.env.ADMIN_NAME || "Admin User";
 
   // Hash password
   const saltRounds = 10;
@@ -37,14 +35,14 @@ async function main() {
 
   console.log(`✅ Admin created/updated: ${admin.name} (${admin.email})`);
   console.log(`   Default credentials: ${adminEmail} / ${adminPassword}`);
-  console.log('   ⚠️  Please change the default password after first login!');
+  console.log("   ⚠️  Please change the default password after first login!");
 
-  console.log('✨ Seed completed successfully!');
+  console.log("✨ Seed completed successfully!");
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seed:', e);
+    console.error("❌ Error during seed:", e);
     process.exit(1);
   })
   .finally(async () => {
