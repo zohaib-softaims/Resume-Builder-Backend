@@ -89,25 +89,8 @@ export const getUserStats = async (user_id) => {
 export const getUserOverviewStats = async () => {
   const totalUsers = await prisma.user.count();
 
-  const subscribedUsers = await prisma.subscription.count({
-    where: {
-      stripe_status: "active",
-      plan: {
-        type: "Monthly",
-      },
-    },
-  });
-
-  const conversionRate =
-    totalUsers > 0 ? ((subscribedUsers / totalUsers) * 100).toFixed(1) : "0.0";
-
-  const nonSubscribedUsers = totalUsers - subscribedUsers;
-
   return {
     totalUsers,
-    subscribedUsers,
-    nonSubscribedUsers,
-    conversionRate: parseFloat(conversionRate),
   };
 };
 
@@ -119,7 +102,6 @@ export const getUsersList = async (options = {}) => {
     tab = "all",
     timeRange = "7days",
     monthFilter = "",
-    subscriptionFilter = "all",
   } = options;
 
   const skip = (page - 1) * limit;
@@ -149,24 +131,9 @@ export const getUsersList = async (options = {}) => {
     }
   }
 
-  const getSubscriptionWhere = () => {
-    if (subscriptionFilter === "subscribed") {
-      return { subscription: { stripe_status: "active", plan: { type: "Monthly" } } };
-    } else if (subscriptionFilter === "non-subscribed") {
-      return {
-        OR: [
-          { subscription: null },
-          { subscription: { OR: [{ stripe_status: { not: "active" } }, { plan: { type: { not: "Monthly" } } }] } },
-        ],
-      };
-    }
-    return {};
-  };
-
   const where = {
     AND: [
       search ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }] } : {},
-      getSubscriptionWhere(),
       tab === "new" && Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : {},
       tab === "active" && Object.keys(dateFilter).length > 0 ? { last_login: dateFilter } : {},
     ],
@@ -200,13 +167,6 @@ export const getUsersList = async (options = {}) => {
               }
             }
           },
-
-          subscription: {
-            select: {
-              stripe_status: true,
-              plan: { select: { type: true } },
-            },
-          },
         },
       }),
       prisma.user.count({ where }),
@@ -224,11 +184,6 @@ export const getUsersList = async (options = {}) => {
       generalOptimized: u.resumes.length,
 
       jobOptimized: u.resumes.reduce((sum, r) => sum + r._count.jobs, 0),
-
-      subscriptionStatus:
-        u.subscription?.stripe_status === "active" && u.subscription?.plan?.type === "Monthly"
-          ? "Subscribed"
-          : "Non-Subscribed",
     }));
 
     return {

@@ -88,8 +88,25 @@ export const getVisitorStats = async () => {
       ? (totalJobAnalyses / totalSignedUpUsers).toFixed(2)
       : 0;
 
+  const totalResumeAnalyses = await prisma.resume.count({
+    where: {
+      user_id: { not: null },
+    },
+  });
+
+  const averageResumeAnalysisPerUser =
+    totalSignedUpUsers > 0
+      ? (totalResumeAnalyses / totalSignedUpUsers).toFixed(2)
+      : 0;
+
+  const totalAppVisits = appAnalytics?.totalAppVisits || 0;
+  const conversionRate =
+    totalAppVisits > 0
+      ? ((totalSignedUpUsers / totalAppVisits) * 100).toFixed(2)
+      : 0;
+
   return {
-    totalAppVisits: appAnalytics?.totalAppVisits || 0,
+    totalAppVisits,
     totalGuestResumeAnalysis: appAnalytics?.totalGuestResumeAnalysis || 0,
     fixAtsOrCustomizedClicked: appAnalytics?.fixAtsOrCustomizedClicked || 0,
     signupButtonClicked: appAnalytics?.signupButtonClicked || 0,
@@ -97,6 +114,9 @@ export const getVisitorStats = async () => {
     totalConsiliariClicks,
     totalJobAnalyses,
     averageJobAnalysisPerUser: parseFloat(averageJobAnalysisPerUser),
+    totalResumeAnalyses,
+    averageResumeAnalysisPerUser: parseFloat(averageResumeAnalysisPerUser),
+    conversionRate: parseFloat(conversionRate),
   };
 };
 

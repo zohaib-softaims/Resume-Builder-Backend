@@ -52,7 +52,6 @@ export const getUsers = catchAsync(async (req, res) => {
     tab,
     timeRange,
     monthFilter,
-    subscriptionFilter,
   } = req.query;
 
   logger.info("Admin fetching users list", {
@@ -64,7 +63,6 @@ export const getUsers = catchAsync(async (req, res) => {
       tab,
       timeRange,
       monthFilter,
-      subscriptionFilter,
     },
   });
 
@@ -75,7 +73,6 @@ export const getUsers = catchAsync(async (req, res) => {
     tab: tab || "all",
     timeRange: timeRange || "7days",
     monthFilter: monthFilter || "",
-    subscriptionFilter: subscriptionFilter || "all",
   };
 
   const result = await getUsersList(options);
