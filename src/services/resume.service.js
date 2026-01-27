@@ -92,22 +92,21 @@ export const deleteResume = async (resume_id) => {
 
 //Admin Services
 export const getResumeAnalysisStats = async () => {
+  const totalUsers = await prisma.user.count();
   const totalAnalyses = await prisma.resume.count({
     where: {
       user_id: { not: null },
     },
   });
 
-  const totalOptimized = await prisma.resume.count({
-    where: {
-      user_id: { not: null },
-      optimized_resumeUrl: { not: null },
-    },
-  });
+  const averageResumeAnalysisPerUser =
+    totalUsers > 0
+      ? (totalAnalyses / totalUsers).toFixed(2)
+      : 0;
 
   return {
     totalAnalyses,
-    totalOptimized,
+    averageResumeAnalysisPerUser,
   };
 };
 

@@ -129,10 +129,17 @@ export const deleteJob = async (job_id) => {
 
 //Admin Services
 export const getJobAnalysisStats = async () => {
+  const totalUsers = await prisma.user.count();
   const totalAnalyses = await prisma.job.count();
-  
+
+  const averageJobAnalysisPerUser =
+    totalUsers > 0
+      ? (totalAnalyses / totalUsers).toFixed(2)
+      : 0;
+
   return {
     totalAnalyses,
+    averageJobAnalysisPerUser,
   };
 };
 
